@@ -8,6 +8,7 @@ import {
   Sparkles,
   FlaskConical,
   FolderOpen,
+  Wand2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,6 +28,7 @@ const items = [
   { title: "Brain", url: "/brain", icon: Lightbulb, hint: "Ideas & insights" },
   { title: "Plan", url: "/plan", icon: CalendarDays, hint: "Calendar & Kanban" },
   { title: "Execute", url: "/execute", icon: PenLine, hint: "Write content" },
+  { title: "AI Writer", url: "/ai-writer", icon: Wand2, hint: "AI Draft Writer" },
   { title: "Track", url: "/track", icon: LineChart, hint: "Performance" },
   { title: "Review", url: "/review", icon: Sparkles, hint: "Weekly insights" },
   { title: "Hub", url: "/hub", icon: FolderOpen, hint: "Documents" },

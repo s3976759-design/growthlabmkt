@@ -72,6 +72,7 @@ const tabLabels: Record<string, string> = {
   "/brain": "Content Brain",
   "/plan": "Content Planner",
   "/execute": "Content Execution",
+  "/ai-writer": "AI Draft Writer",
   "/track": "Performance Tracker",
   "/review": "Weekly Review",
   "/hub": "Document Hub",
