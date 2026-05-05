@@ -74,6 +74,7 @@ const tabLabels: Record<string, string> = {
   "/execute": "Content Execution",
   "/track": "Performance Tracker",
   "/review": "Weekly Review",
+  "/hub": "Document Hub",
 };
 
 function TopBar() {
