@@ -63,6 +63,18 @@ function Dashboard() {
       </PageHeader>
 
       <div className="grid gap-5 px-6 py-8 md:px-10 lg:grid-cols-3">
+        <DateTimeWidget />
+        <FocusMiniPlayer />
+        <Card className="border-border/60 bg-card/80 p-5 shadow-soft backdrop-blur-md">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Quick links</p>
+          <div className="mt-3 flex flex-col gap-2 text-sm">
+            <Link to="/settings" className="text-foreground/80 hover:text-foreground">→ Settings & sharing</Link>
+            <Link to="/ai-writer" className="text-foreground/80 hover:text-foreground">→ AI Draft Writer</Link>
+            <Link to="/plan" className="text-foreground/80 hover:text-foreground">→ Content planner</Link>
+            <Link to="/hub" className="text-foreground/80 hover:text-foreground">→ Document hub</Link>
+          </div>
+        </Card>
+
         {/* Weekly goal */}
         <Card className="relative overflow-hidden border-border/60 bg-card p-6 shadow-soft lg:col-span-2">
           <div className="absolute inset-0 grid-paper opacity-40" />
