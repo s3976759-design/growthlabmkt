@@ -6,6 +6,8 @@ import { Progress } from "@/components/ui/progress";
 import { useContents, useIdeas, useWeeklyGoal, engagementRate } from "@/lib/storage";
 import { ArrowRight, Lightbulb, PenLine, TrendingUp, Target, Sparkles } from "lucide-react";
 import { useMemo } from "react";
+import { DateTimeWidget } from "@/components/DateTimeWidget";
+import { FocusMiniPlayer } from "@/components/FocusMiniPlayer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
