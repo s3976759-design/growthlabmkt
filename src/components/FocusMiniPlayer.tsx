@@ -16,7 +16,10 @@ import { useSoundSettings } from "@/lib/settings";
 export function FocusMiniPlayer() {
   const [sound, setSound] = useSoundSettings();
   const [, force] = useState(0);
-  useEffect(() => subscribeFocus(() => force((n) => n + 1)), []);
+  useEffect(() => {
+    const unsub = subscribeFocus(() => force((n) => n + 1));
+    return () => { unsub; };
+  }, []);
 
   const state = getFocusState();
   const active = SOUNDS.find((s) => s.id === sound.selectedId) ?? SOUNDS[0];
