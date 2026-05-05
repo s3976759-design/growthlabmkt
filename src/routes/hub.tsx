@@ -34,6 +34,7 @@ function fmtSize(b: number) {
 
 function HubPage() {
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [preview, setPreview] = useState<FileItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState("");
@@ -147,15 +148,22 @@ function HubPage() {
           <div className="grid gap-2">
             {filtered.map((f) => (
               <Card key={f.name} className="flex items-center gap-3 p-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                <button
+                  onClick={() => setPreview(f)}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent transition hover:bg-accent/70"
+                  title="Xem trước"
+                >
                   <FileText className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div className="min-w-0 flex-1">
+                </button>
+                <button onClick={() => setPreview(f)} className="min-w-0 flex-1 text-left">
                   <p className="truncate text-sm font-medium">{f.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {fmtSize(f.size)} · {f.updated ? new Date(f.updated).toLocaleString("vi-VN") : "—"}
                   </p>
-                </div>
+                </button>
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setPreview(f)}>
+                  <Eye className="h-4 w-4" />
+                </Button>
                 <Button asChild size="icon" variant="ghost" className="h-8 w-8">
                   <a href={f.url} target="_blank" rel="noreferrer" download={f.name}>
                     <Download className="h-4 w-4" />
@@ -169,6 +177,73 @@ function HubPage() {
           </div>
         )}
       </div>
+
+      <FilePreviewDialog file={preview} onClose={() => setPreview(null)} />
     </div>
+  );
+}
+
+function getExt(name: string) {
+  const i = name.lastIndexOf(".");
+  return i >= 0 ? name.slice(i + 1).toLowerCase() : "";
+}
+
+function FilePreviewDialog({ file, onClose }: { file: FileItem | null; onClose: () => void }) {
+  const [text, setText] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const ext = file ? getExt(file.name) : "";
+  const isImage = ["png", "jpg", "jpeg", "gif", "webp", "svg", "avif"].includes(ext);
+  const isPdf = ext === "pdf";
+  const isVideo = ["mp4", "webm", "mov"].includes(ext);
+  const isAudio = ["mp3", "wav", "ogg", "m4a"].includes(ext);
+  const isText = ["txt", "md", "json", "csv", "log", "yaml", "yml", "html", "xml"].includes(ext);
+
+  useEffect(() => {
+    setText(null);
+    if (!file || !isText) return;
+    setLoading(true);
+    fetch(file.url)
+      .then((r) => r.text())
+      .then((t) => setText(t.slice(0, 200_000)))
+      .catch(() => setText("Không thể đọc file."))
+      .finally(() => setLoading(false));
+  }, [file, isText]);
+
+  return (
+    <Dialog open={!!file} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="truncate pr-8 font-display text-base">{file?.name}</DialogTitle>
+        </DialogHeader>
+        <div className="max-h-[75vh] overflow-auto">
+          {!file ? null : isImage ? (
+            <img src={file.url} alt={file.name} className="mx-auto max-h-[70vh] rounded" />
+          ) : isPdf ? (
+            <iframe src={file.url} title={file.name} className="h-[75vh] w-full rounded border border-border/60" />
+          ) : isVideo ? (
+            <video src={file.url} controls className="mx-auto max-h-[70vh] w-full rounded" />
+          ) : isAudio ? (
+            <audio src={file.url} controls className="w-full" />
+          ) : isText ? (
+            loading ? (
+              <div className="flex items-center justify-center py-12 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </div>
+            ) : (
+              <pre className="whitespace-pre-wrap break-words rounded bg-surface/60 p-4 text-xs">{text}</pre>
+            )
+          ) : (
+            <div className="space-y-3 py-8 text-center text-sm text-muted-foreground">
+              <p>Không thể xem trước định dạng <code className="rounded bg-surface px-1.5 py-0.5">.{ext || "?"}</code> ngay trên trình duyệt.</p>
+              <Button asChild>
+                <a href={file.url} target="_blank" rel="noreferrer" download={file.name}>
+                  <Download className="mr-2 h-4 w-4" /> Tải xuống
+                </a>
+              </Button>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
