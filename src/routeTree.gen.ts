@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackRouteImport } from './routes/track'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as PlanRouteImport } from './routes/plan'
+import { Route as HubRouteImport } from './routes/hub'
 import { Route as ExecuteRouteImport } from './routes/execute'
 import { Route as BrainRouteImport } from './routes/brain'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,6 +30,11 @@ const ReviewRoute = ReviewRouteImport.update({
 const PlanRoute = PlanRouteImport.update({
   id: '/plan',
   path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubRoute = HubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExecuteRoute = ExecuteRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
+  '/hub': typeof HubRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
   '/track': typeof TrackRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
+  '/hub': typeof HubRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
   '/track': typeof TrackRoute
@@ -68,22 +76,39 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
+  '/hub': typeof HubRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
   '/track': typeof TrackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/brain' | '/execute' | '/plan' | '/review' | '/track'
+  fullPaths:
+    | '/'
+    | '/brain'
+    | '/execute'
+    | '/hub'
+    | '/plan'
+    | '/review'
+    | '/track'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/brain' | '/execute' | '/plan' | '/review' | '/track'
-  id: '__root__' | '/' | '/brain' | '/execute' | '/plan' | '/review' | '/track'
+  to: '/' | '/brain' | '/execute' | '/hub' | '/plan' | '/review' | '/track'
+  id:
+    | '__root__'
+    | '/'
+    | '/brain'
+    | '/execute'
+    | '/hub'
+    | '/plan'
+    | '/review'
+    | '/track'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrainRoute: typeof BrainRoute
   ExecuteRoute: typeof ExecuteRoute
+  HubRoute: typeof HubRoute
   PlanRoute: typeof PlanRoute
   ReviewRoute: typeof ReviewRoute
   TrackRoute: typeof TrackRoute
@@ -110,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/plan'
       fullPath: '/plan'
       preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hub': {
+      id: '/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof HubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/execute': {
@@ -140,6 +172,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrainRoute: BrainRoute,
   ExecuteRoute: ExecuteRoute,
+  HubRoute: HubRoute,
   PlanRoute: PlanRoute,
   ReviewRoute: ReviewRoute,
   TrackRoute: TrackRoute,
