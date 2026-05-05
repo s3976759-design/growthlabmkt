@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } f
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { DashboardBackground } from "@/components/DashboardBackground";
 
 import appCss from "../styles.css?url";
 
@@ -76,6 +77,7 @@ const tabLabels: Record<string, string> = {
   "/track": "Performance Tracker",
   "/review": "Weekly Review",
   "/hub": "Document Hub",
+  "/settings": "Settings",
 };
 
 function TopBar() {
@@ -99,7 +101,8 @@ function TopBar() {
 function RootComponent() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-paper">
+      <DashboardBackground />
+      <div className="relative flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex flex-1 flex-col">
           <TopBar />
