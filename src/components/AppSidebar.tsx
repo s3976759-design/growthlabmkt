@@ -7,6 +7,7 @@ import {
   LineChart,
   Sparkles,
   FlaskConical,
+  FolderOpen,
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,6 +29,7 @@ const items = [
   { title: "Execute", url: "/execute", icon: PenLine, hint: "Write content" },
   { title: "Track", url: "/track", icon: LineChart, hint: "Performance" },
   { title: "Review", url: "/review", icon: Sparkles, hint: "Weekly insights" },
+  { title: "Hub", url: "/hub", icon: FolderOpen, hint: "Documents" },
 ];
 
 export function AppSidebar() {
