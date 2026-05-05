@@ -59,6 +59,8 @@ function daysLeft(r: PlannerRow): string {
 
 export function PlanTable({ mode }: Props) {
   const [rows, setRows] = usePlannerRows();
+  const { config } = usePlannerConfig();
+  const COLS = useMemo(() => buildCols(config), [config]);
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
@@ -77,7 +79,7 @@ export function PlanTable({ mode }: Props) {
     toast.success("Đã xoá dòng");
   };
   const add = () => {
-    setRows((prev) => [emptyRow(), ...prev]);
+    setRows((prev) => [emptyRow(config), ...prev]);
   };
 
   return (
