@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackRouteImport } from './routes/track'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as HubRouteImport } from './routes/hub'
@@ -21,6 +22,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const TrackRoute = TrackRouteImport.update({
   id: '/track',
   path: '/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewRoute = ReviewRouteImport.update({
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/hub': typeof HubRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
+  '/settings': typeof SettingsRoute
   '/track': typeof TrackRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/hub': typeof HubRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
+  '/settings': typeof SettingsRoute
   '/track': typeof TrackRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/hub': typeof HubRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
+  '/settings': typeof SettingsRoute
   '/track': typeof TrackRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/hub'
     | '/plan'
     | '/review'
+    | '/settings'
     | '/track'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/hub'
     | '/plan'
     | '/review'
+    | '/settings'
     | '/track'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/hub'
     | '/plan'
     | '/review'
+    | '/settings'
     | '/track'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   HubRoute: typeof HubRoute
   PlanRoute: typeof PlanRoute
   ReviewRoute: typeof ReviewRoute
+  SettingsRoute: typeof SettingsRoute
   TrackRoute: typeof TrackRoute
 }
 
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/track'
       fullPath: '/track'
       preLoaderRoute: typeof TrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/review': {
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   HubRoute: HubRoute,
   PlanRoute: PlanRoute,
   ReviewRoute: ReviewRoute,
+  SettingsRoute: SettingsRoute,
   TrackRoute: TrackRoute,
 }
 export const routeTree = rootRouteImport
