@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Lightbulb, TrendingUp, Search, Trash2, Sparkles } from "lucide-react";
+import { Plus, Lightbulb, TrendingUp, Search, Trash2, Sparkles, Pencil } from "lucide-react";
 import { useIdeas, uid, type Idea, type Industry, type Format } from "@/lib/storage";
 import { toast } from "sonner";
 
@@ -42,6 +42,7 @@ function BrainPage() {
   const [ideas, setIdeas] = useIdeas();
   const [query, setQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
+  const [editing, setEditing] = useState<Idea | null>(null);
 
   const filtered = ideas
     .filter((i) => filterType === "all" || i.type === filterType)
@@ -57,6 +58,12 @@ function BrainPage() {
     setIdeas((prev) => prev.filter((i) => i.id !== id));
     toast.success("Đã xoá ý tưởng");
   };
+  const upsert = (idea: Idea) => {
+    setIdeas((prev) => {
+      const exists = prev.some((p) => p.id === idea.id);
+      return exists ? prev.map((p) => (p.id === idea.id ? idea : p)) : [idea, ...prev];
+    });
+  };
 
   return (
     <div>
@@ -65,11 +72,9 @@ function BrainPage() {
         title="Idea database, không phải note."
         description="Mọi insight, trend, ý tưởng đều có chỗ. Tag rõ ngành & format để biến thành content có chủ đích."
       >
-        <NewIdeaDialog
-          onCreate={(idea) => {
-            setIdeas((prev) => [idea, ...prev]);
-            toast.success("Đã thêm vào Brain");
-          }}
+        <IdeaDialog
+          trigger={<Button className="gap-2"><Plus className="h-4 w-4" /> Ý tưởng mới</Button>}
+          onSave={(i) => { upsert(i); toast.success("Đã thêm vào Brain"); }}
         />
       </PageHeader>
 
@@ -108,16 +113,30 @@ function BrainPage() {
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((idea) => (
-              <IdeaCard key={idea.id} idea={idea} onDelete={() => remove(idea.id)} />
+              <IdeaCard
+                key={idea.id}
+                idea={idea}
+                onDelete={() => remove(idea.id)}
+                onEdit={() => setEditing(idea)}
+              />
             ))}
           </div>
         )}
       </div>
+
+      {editing && (
+        <IdeaDialog
+          initial={editing}
+          open
+          onOpenChange={(o) => !o && setEditing(null)}
+          onSave={(i) => { upsert(i); setEditing(null); toast.success("Đã cập nhật"); }}
+        />
+      )}
     </div>
   );
 }
 
-function IdeaCard({ idea, onDelete }: { idea: Idea; onDelete: () => void }) {
+function IdeaCard({ idea, onDelete, onEdit }: { idea: Idea; onDelete: () => void; onEdit: () => void }) {
   const typeMeta = {
     idea: { icon: Lightbulb, label: "Ý tưởng", color: "bg-growth/15 text-foreground" },
     insight: { icon: Search, label: "Insight", color: "bg-insight/15 text-insight" },
@@ -131,19 +150,23 @@ function IdeaCard({ idea, onDelete }: { idea: Idea; onDelete: () => void }) {
           <typeMeta.icon className="h-3 w-3" />
           {typeMeta.label}
         </Badge>
-        <button
-          onClick={onDelete}
-          className="text-muted-foreground/50 opacity-0 transition hover:text-destructive group-hover:opacity-100"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1 opacity-0 transition group-hover:opacity-100">
+          <button onClick={onEdit} className="text-muted-foreground/60 transition hover:text-foreground">
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button onClick={onDelete} className="text-muted-foreground/60 transition hover:text-destructive">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </div>
-      <h3 className="mt-3 font-display text-lg font-medium leading-snug">{idea.title}</h3>
-      {idea.note && (
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-4">
-          {idea.note}
-        </p>
-      )}
+      <button onClick={onEdit} className="mt-3 block w-full text-left">
+        <h3 className="font-display text-lg font-medium leading-snug">{idea.title}</h3>
+        {idea.note && (
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-4">
+            {idea.note}
+          </p>
+        )}
+      </button>
       <div className="mt-4 flex flex-wrap gap-1.5">
         <Badge variant="outline" className="text-[10px]">{idea.industry}</Badge>
         <Badge variant="outline" className="text-[10px]">{idea.format}</Badge>
@@ -152,38 +175,51 @@ function IdeaCard({ idea, onDelete }: { idea: Idea; onDelete: () => void }) {
   );
 }
 
-function NewIdeaDialog({ onCreate }: { onCreate: (idea: Idea) => void }) {
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
-  const [type, setType] = useState<Idea["type"]>("idea");
-  const [industry, setIndustry] = useState<Industry>("Lifestyle");
-  const [format, setFormat] = useState<Format>("Reel");
+interface DialogProps {
+  trigger?: React.ReactNode;
+  initial?: Idea;
+  open?: boolean;
+  onOpenChange?: (o: boolean) => void;
+  onSave: (idea: Idea) => void;
+}
+
+function IdeaDialog({ trigger, initial, open, onOpenChange, onSave }: DialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const isOpen = isControlled ? open! : internalOpen;
+  const setOpen = (o: boolean) => { isControlled ? onOpenChange?.(o) : setInternalOpen(o); };
+
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [note, setNote] = useState(initial?.note ?? "");
+  const [type, setType] = useState<Idea["type"]>(initial?.type ?? "idea");
+  const [industry, setIndustry] = useState<Industry>(initial?.industry ?? "Lifestyle");
+  const [format, setFormat] = useState<Format>(initial?.format ?? "Reel");
 
   const submit = () => {
     if (!title.trim()) return;
-    onCreate({
-      id: uid(),
+    onSave({
+      id: initial?.id ?? uid(),
       title: title.trim(),
       note: note.trim(),
       type,
       industry,
       format,
-      createdAt: Date.now(),
+      createdAt: initial?.createdAt ?? Date.now(),
     });
-    setTitle("");
-    setNote("");
+    if (!initial) {
+      setTitle(""); setNote("");
+    }
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2"><Plus className="h-4 w-4" /> Ý tưởng mới</Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Thêm vào Brain</DialogTitle>
+          <DialogTitle className="font-display text-2xl">
+            {initial ? "Chỉnh sửa ý tưởng" : "Thêm vào Brain"}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <Input placeholder="Tiêu đề / câu hook…" value={title} onChange={(e) => setTitle(e.target.value)} />

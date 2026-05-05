@@ -11,10 +11,11 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import {
   usePlannerRows,
-  PLANNER_CONFIG,
+  usePlannerConfig,
   emptyRow,
   isPosted,
   type PlannerRow,
+  type PlannerConfig,
 } from "@/lib/planner";
 import { toast } from "sonner";
 
@@ -23,28 +24,30 @@ interface Props {
   mode: "active" | "archive";
 }
 
-const COLS: { key: keyof PlannerRow; label: string; type?: "select" | "date" | "time" | "number" | "text" | "textarea"; options?: readonly string[] | string[] }[] = [
-  { key: "title", label: "TIÊU ĐỀ / NỘI DUNG CHÍNH", type: "text" },
-  { key: "assignee", label: "NGƯỜI THỰC HIỆN", type: "select", options: PLANNER_CONFIG.assignees as unknown as string[] },
-  { key: "status", label: "TRẠNG THÁI", type: "select", options: PLANNER_CONFIG.statuses as unknown as string[] },
-  { key: "contentType", label: "LOẠI NỘI DUNG", type: "select", options: PLANNER_CONFIG.contentTypes as unknown as string[] },
-  { key: "platform", label: "NỀN TẢNG", type: "select", options: PLANNER_CONFIG.platforms as unknown as string[] },
-  { key: "format", label: "ĐỊNH DẠNG", type: "select", options: PLANNER_CONFIG.formats as unknown as string[] },
-  { key: "goal", label: "MỤC TIÊU", type: "select", options: PLANNER_CONFIG.goals as unknown as string[] },
-  { key: "demoDate", label: "NGÀY CÓ DEMO", type: "date" },
-  { key: "demoTime", label: "GIỜ CÓ DEMO", type: "time" },
-  { key: "postDate", label: "NGÀY ĐĂNG", type: "date" },
-  { key: "postTime", label: "GIỜ ĐĂNG", type: "time" },
-  { key: "body", label: "NỘI DUNG", type: "textarea" },
-  { key: "hashtag", label: "HASHTAG", type: "text" },
-  { key: "assetLink", label: "ASSET LINK", type: "text" },
-  { key: "note", label: "GHI CHÚ", type: "textarea" },
-  { key: "views", label: "SỐ LƯỢT XEM", type: "number" },
-  { key: "interactions", label: "SỐ LƯỢT TƯƠNG TÁC", type: "number" },
-  { key: "shares", label: "SỐ LƯỢT CHIA SẺ", type: "number" },
-  { key: "saves", label: "SỐ LƯỢT LƯU LẠI", type: "number" },
-  { key: "recordedAt", label: "NGÀY GHI LẠI", type: "date" },
-];
+function buildCols(cfg: PlannerConfig) {
+  return [
+    { key: "title", label: "TIÊU ĐỀ / NỘI DUNG CHÍNH", type: "text" as const },
+    { key: "assignee", label: "NGƯỜI THỰC HIỆN", type: "select" as const, options: cfg.assignees },
+    { key: "status", label: "TRẠNG THÁI", type: "select" as const, options: cfg.statuses },
+    { key: "contentType", label: "LOẠI NỘI DUNG", type: "select" as const, options: cfg.contentTypes },
+    { key: "platform", label: "NỀN TẢNG", type: "select" as const, options: cfg.platforms },
+    { key: "format", label: "ĐỊNH DẠNG", type: "select" as const, options: cfg.formats },
+    { key: "goal", label: "MỤC TIÊU", type: "select" as const, options: cfg.goals },
+    { key: "demoDate", label: "NGÀY CÓ DEMO", type: "date" as const },
+    { key: "demoTime", label: "GIỜ CÓ DEMO", type: "time" as const },
+    { key: "postDate", label: "NGÀY ĐĂNG", type: "date" as const },
+    { key: "postTime", label: "GIỜ ĐĂNG", type: "time" as const },
+    { key: "body", label: "NỘI DUNG", type: "textarea" as const },
+    { key: "hashtag", label: "HASHTAG", type: "text" as const },
+    { key: "assetLink", label: "ASSET LINK", type: "text" as const },
+    { key: "note", label: "GHI CHÚ", type: "textarea" as const },
+    { key: "views", label: "SỐ LƯỢT XEM", type: "number" as const },
+    { key: "interactions", label: "SỐ LƯỢT TƯƠNG TÁC", type: "number" as const },
+    { key: "shares", label: "SỐ LƯỢT CHIA SẺ", type: "number" as const },
+    { key: "saves", label: "SỐ LƯỢT LƯU LẠI", type: "number" as const },
+    { key: "recordedAt", label: "NGÀY GHI LẠI", type: "date" as const },
+  ] satisfies { key: keyof PlannerRow; label: string; type: "select" | "date" | "time" | "number" | "text" | "textarea"; options?: string[] }[];
+}
 
 function daysLeft(r: PlannerRow): string {
   if (!r.postDate) return "-";
@@ -56,6 +59,8 @@ function daysLeft(r: PlannerRow): string {
 
 export function PlanTable({ mode }: Props) {
   const [rows, setRows] = usePlannerRows();
+  const { config } = usePlannerConfig();
+  const COLS = useMemo(() => buildCols(config), [config]);
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
@@ -74,7 +79,7 @@ export function PlanTable({ mode }: Props) {
     toast.success("Đã xoá dòng");
   };
   const add = () => {
-    setRows((prev) => [emptyRow(), ...prev]);
+    setRows((prev) => [emptyRow(config), ...prev]);
   };
 
   return (

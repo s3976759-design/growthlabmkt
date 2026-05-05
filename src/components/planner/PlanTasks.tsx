@@ -4,12 +4,13 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { usePlannerRows, PLANNER_CONFIG } from "@/lib/planner";
+import { usePlannerRows, usePlannerConfig } from "@/lib/planner";
 
 const ALL = "__all__";
 
 export function PlanTasks() {
   const [rows] = usePlannerRows();
+  const { config: PLANNER_CONFIG } = usePlannerConfig();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [postFrom, setPostFrom] = useState("");

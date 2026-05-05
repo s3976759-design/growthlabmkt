@@ -6,8 +6,6 @@ import { PlanTable } from "@/components/planner/PlanTable";
 import { PlanCalendar } from "@/components/planner/PlanCalendar";
 import { PlanTasks } from "@/components/planner/PlanTasks";
 import { PlanOverview } from "@/components/planner/PlanOverview";
-import { PlanIdeas } from "@/components/planner/PlanIdeas";
-import { PlanPillars } from "@/components/planner/PlanPillars";
 import { PlanSample } from "@/components/planner/PlanSample";
 import { PlanSettings } from "@/components/planner/PlanSettings";
 
@@ -26,9 +24,7 @@ const TABS = [
   { v: "lich", label: "Lịch" },
   { v: "cong-viec", label: "Bảng công việc" },
   { v: "tong-quan", label: "Tổng quan" },
-  { v: "y-tuong", label: "Ý tưởng" },
   { v: "luu-tru", label: "Lưu trữ" },
-  { v: "pillars", label: "Pillars" },
   { v: "sample", label: "Sample" },
   { v: "thiet-lap", label: "Thiết lập" },
 ];
@@ -59,9 +55,7 @@ function PlanPage() {
           <TabsContent value="lich"><PlanCalendar /></TabsContent>
           <TabsContent value="cong-viec"><PlanTasks /></TabsContent>
           <TabsContent value="tong-quan"><PlanOverview /></TabsContent>
-          <TabsContent value="y-tuong"><PlanIdeas /></TabsContent>
           <TabsContent value="luu-tru"><PlanTable mode="archive" /></TabsContent>
-          <TabsContent value="pillars"><PlanPillars /></TabsContent>
           <TabsContent value="sample"><PlanSample /></TabsContent>
           <TabsContent value="thiet-lap"><PlanSettings /></TabsContent>
         </Tabs>

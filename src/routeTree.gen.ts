@@ -15,6 +15,7 @@ import { Route as PlanRouteImport } from './routes/plan'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as ExecuteRouteImport } from './routes/execute'
 import { Route as BrainRouteImport } from './routes/brain'
+import { Route as AiWriterRouteImport } from './routes/ai-writer'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TrackRoute = TrackRouteImport.update({
@@ -47,6 +48,11 @@ const BrainRoute = BrainRouteImport.update({
   path: '/brain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiWriterRoute = AiWriterRouteImport.update({
+  id: '/ai-writer',
+  path: '/ai-writer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +61,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-writer': typeof AiWriterRoute
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
   '/hub': typeof HubRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-writer': typeof AiWriterRoute
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
   '/hub': typeof HubRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-writer': typeof AiWriterRoute
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
   '/hub': typeof HubRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-writer'
     | '/brain'
     | '/execute'
     | '/hub'
@@ -92,10 +102,19 @@ export interface FileRouteTypes {
     | '/review'
     | '/track'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/brain' | '/execute' | '/hub' | '/plan' | '/review' | '/track'
+  to:
+    | '/'
+    | '/ai-writer'
+    | '/brain'
+    | '/execute'
+    | '/hub'
+    | '/plan'
+    | '/review'
+    | '/track'
   id:
     | '__root__'
     | '/'
+    | '/ai-writer'
     | '/brain'
     | '/execute'
     | '/hub'
@@ -106,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiWriterRoute: typeof AiWriterRoute
   BrainRoute: typeof BrainRoute
   ExecuteRoute: typeof ExecuteRoute
   HubRoute: typeof HubRoute
@@ -158,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-writer': {
+      id: '/ai-writer'
+      path: '/ai-writer'
+      fullPath: '/ai-writer'
+      preLoaderRoute: typeof AiWriterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -170,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiWriterRoute: AiWriterRoute,
   BrainRoute: BrainRoute,
   ExecuteRoute: ExecuteRoute,
   HubRoute: HubRoute,
