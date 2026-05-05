@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 
-// ===== Config (mirrors "Thiết lập file") =====
-export const PLANNER_CONFIG = {
+// ===== Default config (mirrors "Thiết lập file") =====
+export const DEFAULT_CONFIG = {
   contentTypes: [
     "Giới thiệu sản phẩm",
     "Hướng dẫn sử dụng sản phẩm",
@@ -41,31 +41,38 @@ export const PLANNER_CONFIG = {
   goals: ["Lượt xem", "Lượt yêu thích", "Lượt lưu lại", "Website visit"],
   assignees: ["Phạm Mai Anh"],
   weekStart: "Thứ hai",
-} as const;
+};
+
+export type PlannerConfig = typeof DEFAULT_CONFIG;
+export type ConfigListKey = "contentTypes" | "platforms" | "statuses" | "formats" | "goals" | "assignees";
+
+// Backwards-compat: a static reference that mirrors defaults. Components should
+// prefer usePlannerConfig() so edits in Settings propagate everywhere.
+export const PLANNER_CONFIG = DEFAULT_CONFIG;
 
 // ===== Types =====
 export interface PlannerRow {
   id: string;
-  title: string;          // TIÊU ĐỀ / NỘI DUNG CHÍNH
-  assignee: string;       // NGƯỜI THỰC HIỆN
-  status: string;         // TRẠNG THÁI
-  contentType: string;    // LOẠI NỘI DUNG
-  platform: string;       // NỀN TẢNG
-  format: string;         // ĐỊNH DẠNG
-  goal: string;           // MỤC TIÊU
-  demoDate?: string;      // NGÀY CÓ DEMO (yyyy-mm-dd)
-  demoTime?: string;      // GIỜ CÓ DEMO
-  postDate?: string;      // NGÀY ĐĂNG
-  postTime?: string;      // GIỜ ĐĂNG
-  body?: string;          // NỘI DUNG
+  title: string;
+  assignee: string;
+  status: string;
+  contentType: string;
+  platform: string;
+  format: string;
+  goal: string;
+  demoDate?: string;
+  demoTime?: string;
+  postDate?: string;
+  postTime?: string;
+  body?: string;
   hashtag?: string;
   assetLink?: string;
   note?: string;
-  views?: number;         // SỐ LƯỢT XEM
-  interactions?: number;  // SỐ LƯỢT TƯƠNG TÁC
+  views?: number;
+  interactions?: number;
   shares?: number;
   saves?: number;
-  recordedAt?: string;    // NGÀY GHI LẠI
+  recordedAt?: string;
   createdAt: number;
 }
 
@@ -94,6 +101,7 @@ const KEYS = {
   ideas: "gl_planner_ideas",
   pillars: "gl_planner_pillars",
   sample: "gl_planner_sample",
+  config: "gl_planner_config_v1",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -152,16 +160,50 @@ export function usePlannerSample() {
   return useStored<string>(KEYS.sample, "");
 }
 
-export function emptyRow(): PlannerRow {
+export function usePlannerConfig() {
+  const [cfg, setCfg] = useStored<PlannerConfig>(KEYS.config, DEFAULT_CONFIG);
+  // ensure all keys exist (forward-compat with future fields)
+  const merged: PlannerConfig = { ...DEFAULT_CONFIG, ...cfg };
+  const addOption = (k: ConfigListKey, value: string) => {
+    const v = value.trim();
+    if (!v) return;
+    setCfg((p) => {
+      const list = (p[k] ?? DEFAULT_CONFIG[k]) as string[];
+      if (list.includes(v)) return p;
+      return { ...p, [k]: [...list, v] };
+    });
+  };
+  const updateOption = (k: ConfigListKey, idx: number, value: string) => {
+    const v = value.trim();
+    if (!v) return;
+    setCfg((p) => {
+      const list = [...((p[k] ?? DEFAULT_CONFIG[k]) as string[])];
+      list[idx] = v;
+      return { ...p, [k]: list };
+    });
+  };
+  const removeOption = (k: ConfigListKey, idx: number) => {
+    setCfg((p) => {
+      const list = [...((p[k] ?? DEFAULT_CONFIG[k]) as string[])];
+      list.splice(idx, 1);
+      return { ...p, [k]: list };
+    });
+  };
+  const setWeekStart = (v: string) => setCfg((p) => ({ ...p, weekStart: v }));
+  const reset = () => setCfg(DEFAULT_CONFIG);
+  return { config: merged, addOption, updateOption, removeOption, setWeekStart, reset };
+}
+
+export function emptyRow(cfg: PlannerConfig = DEFAULT_CONFIG): PlannerRow {
   return {
     id: pid(),
     title: "",
-    assignee: PLANNER_CONFIG.assignees[0],
-    status: PLANNER_CONFIG.statuses[0],
-    contentType: PLANNER_CONFIG.contentTypes[0],
-    platform: PLANNER_CONFIG.platforms[0],
-    format: PLANNER_CONFIG.formats[0],
-    goal: PLANNER_CONFIG.goals[0],
+    assignee: cfg.assignees[0] ?? "",
+    status: cfg.statuses[0] ?? "",
+    contentType: cfg.contentTypes[0] ?? "",
+    platform: cfg.platforms[0] ?? "",
+    format: cfg.formats[0] ?? "",
+    goal: cfg.goals[0] ?? "",
     createdAt: Date.now(),
   };
 }
