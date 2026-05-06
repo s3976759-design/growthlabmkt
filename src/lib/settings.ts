@@ -23,11 +23,17 @@ export interface DataPrefs {
   language: "vi" | "en";
 }
 
+export interface HubSettings {
+  passwordEnabled: boolean;
+  passwordHash: string | null;
+}
+
 const KEYS = {
   account: "gl_settings_account",
   bg: "gl_settings_bg",
   sound: "gl_settings_sound",
   data: "gl_settings_data",
+  hub: "gl_settings_hub",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
