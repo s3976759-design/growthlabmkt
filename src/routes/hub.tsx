@@ -466,19 +466,20 @@ function RenameDialog({
   const [busy, setBusy] = useState(false);
   useEffect(() => { setName(entry?.name ?? ""); }, [entry]);
   if (!entry) return null;
+  const e = entry;
 
   async function submit() {
     const safe = name.trim().replace(/[\\/]/g, "_");
-    if (!safe || safe === entry.name) return onClose();
+    if (!safe || safe === e.name) return onClose();
     setBusy(true);
     try {
-      if (entry.type === "file") {
+      if (e.type === "file") {
         const target = joinPath(currentPath, safe);
-        const { error } = await supabase.storage.from("hub").move(entry.fullPath, target);
+        const { error } = await supabase.storage.from("hub").move(e.fullPath, target);
         if (error) throw error;
-      } else if (entry.type === "folder") {
-        const all = await listAllUnder(entry.fullPath);
-        const oldPrefix = entry.fullPath;
+      } else if (e.type === "folder") {
+        const all = await listAllUnder(e.fullPath);
+        const oldPrefix = e.fullPath;
         const newPrefix = joinPath(currentPath, safe);
         for (const old of all) {
           const next = newPrefix + old.slice(oldPrefix.length);
@@ -486,13 +487,13 @@ function RenameDialog({
           if (error) throw error;
         }
       } else {
-        const { error } = await supabase.from("hub_links").update({ title: safe }).eq("id", entry.id);
+        const { error } = await supabase.from("hub_links").update({ title: safe }).eq("id", e.id);
         if (error) throw error;
       }
       toast.success("Đã đổi tên");
       onDone();
-    } catch (e) {
-      toast.error((e as Error).message);
+    } catch (err) {
+      toast.error((err as Error).message);
     } finally {
       setBusy(false);
     }
