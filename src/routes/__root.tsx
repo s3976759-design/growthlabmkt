@@ -100,6 +100,9 @@ function TopBar() {
         <span className="text-muted-foreground/50">/</span>
         <span className="font-display text-sm font-medium">{label}</span>
       </div>
+      <div className="ml-auto">
+        <LanguageSwitcher />
+      </div>
     </header>
   );
 }
