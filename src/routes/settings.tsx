@@ -10,38 +10,25 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Trash2, Send, Play, Pause, Square, Check } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import { Trash2, Send, Play, Pause, Square, Check, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  useAccount,
-  useBackground,
-  useSoundSettings,
-  useDataPrefs,
+  useAccount, useSoundSettings, useHubSettings, sha256,
 } from "@/lib/settings";
-import { BACKGROUNDS } from "@/lib/backgrounds";
 import {
-  SOUNDS,
-  playFocusSound,
-  setFocusVolume,
-  stopFocusSound,
-  getFocusState,
-  subscribeFocus,
+  SOUNDS, playFocusSound, setFocusVolume, stopFocusSound, getFocusState, subscribeFocus,
 } from "@/lib/focusSound";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
-    meta: [
-      { title: "Settings — Growth Lab" },
-      { name: "description", content: "Tài khoản, chia sẻ, giao diện và âm thanh tập trung." },
-    ],
+    meta: [{ title: "Settings — Growth Lab" }],
   }),
   component: SettingsPage,
 });
@@ -62,25 +49,20 @@ const inviteSchema = z.object({
 function SettingsPage() {
   return (
     <div>
-      <PageHeader
-        eyebrow="Cấu hình"
-        title="Settings"
-        description="Tài khoản, chia sẻ workflow, giao diện và âm thanh tập trung."
-      />
+      <PageHeader eyebrow="Cấu hình" title="Settings"
+        description="Tài khoản, chia sẻ workflow, âm thanh tập trung, mật khẩu Hub." />
       <div className="px-6 py-6 md:px-10">
         <Tabs defaultValue="account">
           <TabsList className="flex-wrap">
             <TabsTrigger value="account">Account</TabsTrigger>
             <TabsTrigger value="share">Share workflow</TabsTrigger>
-            <TabsTrigger value="appearance">Dashboard appearance</TabsTrigger>
             <TabsTrigger value="sound">Focus sound</TabsTrigger>
-            <TabsTrigger value="data">Data & preferences</TabsTrigger>
+            <TabsTrigger value="hub">Hub</TabsTrigger>
           </TabsList>
           <TabsContent value="account" className="mt-6"><AccountSection /></TabsContent>
           <TabsContent value="share" className="mt-6"><ShareSection /></TabsContent>
-          <TabsContent value="appearance" className="mt-6"><AppearanceSection /></TabsContent>
           <TabsContent value="sound" className="mt-6"><SoundSection /></TabsContent>
-          <TabsContent value="data" className="mt-6"><DataSection /></TabsContent>
+          <TabsContent value="hub" className="mt-6"><HubSection /></TabsContent>
         </Tabs>
       </div>
     </div>
@@ -92,27 +74,20 @@ function AccountSection() {
   return (
     <Card className="max-w-xl border-border/60 p-6">
       <h3 className="font-display text-lg">Tài khoản</h3>
-      <p className="mt-1 text-sm text-muted-foreground">Thông tin hiển thị trong dashboard.</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Tên hiển thị này sẽ xuất hiện ở dashboard ("Hello, {account.displayName || "..."}").
+      </p>
       <div className="mt-5 grid gap-4">
         <div>
           <Label>Tên hiển thị</Label>
-          <Input
-            className="mt-1"
-            value={account.displayName}
-            maxLength={60}
-            onChange={(e) => setAccount((p) => ({ ...p, displayName: e.target.value }))}
-          />
+          <Input className="mt-1" value={account.displayName} maxLength={60}
+            onChange={(e) => setAccount((p) => ({ ...p, displayName: e.target.value }))} />
         </div>
         <div>
           <Label>Email</Label>
-          <Input
-            className="mt-1"
-            type="email"
-            value={account.email}
-            maxLength={255}
-            onChange={(e) => setAccount((p) => ({ ...p, email: e.target.value }))}
+          <Input className="mt-1" type="email" value={account.email} maxLength={255}
             placeholder="you@example.com"
-          />
+            onChange={(e) => setAccount((p) => ({ ...p, email: e.target.value }))} />
         </div>
       </div>
     </Card>
@@ -120,15 +95,14 @@ function AccountSection() {
 }
 
 function ShareSection() {
+  const [account] = useAccount();
   const [list, setList] = useState<Invite[]>([]);
   const [email, setEmail] = useState("");
   const [perm, setPerm] = useState<Invite["permission"]>("view");
   const [loading, setLoading] = useState(false);
 
   async function load() {
-    const { data, error } = await supabase
-      .from("shared_invites")
-      .select("*")
+    const { data, error } = await supabase.from("shared_invites").select("*")
       .order("invited_at", { ascending: false });
     if (error) toast.error(error.message);
     else setList((data ?? []) as Invite[]);
@@ -137,19 +111,31 @@ function ShareSection() {
 
   async function send() {
     const parsed = inviteSchema.safeParse({ email, permission: perm });
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ");
-      return;
-    }
+    if (!parsed.success) return toast.error(parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ");
     setLoading(true);
     const { error } = await supabase.from("shared_invites").insert({
-      email: parsed.data.email,
-      permission: parsed.data.permission,
-      status: "pending",
+      email: parsed.data.email, permission: parsed.data.permission, status: "pending",
+    });
+    if (error) {
+      setLoading(false);
+      return toast.error(error.message);
+    }
+    // fire email
+    const { data: emailRes, error: fnErr } = await supabase.functions.invoke("send-invite", {
+      body: {
+        email: parsed.data.email,
+        permission: parsed.data.permission,
+        inviter: account.displayName || "Growth Lab",
+      },
     });
     setLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success(`Đã gửi lời mời tới ${parsed.data.email}`);
+    if (fnErr) {
+      toast.warning(`Đã lưu lời mời, nhưng email chưa gửi: ${fnErr.message}`);
+    } else if ((emailRes as { error?: string } | null)?.error) {
+      toast.warning(`Đã lưu lời mời, nhưng email chưa gửi: ${(emailRes as { error: string }).error}`);
+    } else {
+      toast.success(`Đã gửi email mời tới ${parsed.data.email}`);
+    }
     setEmail("");
     load();
   }
@@ -157,15 +143,10 @@ function ShareSection() {
   async function revoke(id: string) {
     const { error } = await supabase.from("shared_invites").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Đã thu hồi quyền truy cập");
-    load();
+    toast.success("Đã thu hồi"); load();
   }
-
   async function markAccepted(id: string) {
-    const { error } = await supabase
-      .from("shared_invites")
-      .update({ status: "accepted" })
-      .eq("id", id);
+    const { error } = await supabase.from("shared_invites").update({ status: "accepted" }).eq("id", id);
     if (error) return toast.error(error.message);
     load();
   }
@@ -175,19 +156,13 @@ function ShareSection() {
       <Card className="border-border/60 p-6">
         <h3 className="font-display text-lg">Mời bạn bè</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Chia sẻ workflow qua Gmail. Quyền sẽ kiểm soát mức truy cập.
+          Lời mời sẽ được gửi qua email tới người nhận.
         </p>
         <div className="mt-5 grid gap-3">
           <div>
             <Label>Email</Label>
-            <Input
-              className="mt-1"
-              type="email"
-              placeholder="friend@gmail.com"
-              value={email}
-              maxLength={255}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <Input className="mt-1" type="email" placeholder="friend@gmail.com"
+              value={email} maxLength={255} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>
             <Label>Quyền truy cập</Label>
@@ -224,9 +199,7 @@ function ShareSection() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={inv.status === "accepted" ? "default" : "secondary"}>
-                    {inv.status}
-                  </Badge>
+                  <Badge variant={inv.status === "accepted" ? "default" : "secondary"}>{inv.status}</Badge>
                   {inv.status === "pending" && (
                     <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => markAccepted(inv.id)}>
                       <Check className="h-4 w-4" />
@@ -249,108 +222,13 @@ function permLabel(p: Invite["permission"]) {
   return { view: "View only", comment: "Can comment", edit: "Can edit" }[p];
 }
 
-function AppearanceSection() {
-  const [bg, setBg] = useBackground();
-  return (
-    <div className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
-      <Card className="border-border/60 p-6">
-        <h3 className="font-display text-lg">Background gallery</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Chọn không gian cho dashboard. Tất cả là tranh gốc, không sao chép tác phẩm bản quyền.
-        </p>
-        <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
-          {BACKGROUNDS.map((b) => {
-            const active = bg.id === b.id;
-            return (
-              <button
-                key={b.id}
-                onClick={() => setBg((p) => ({ ...p, id: b.id }))}
-                className={`group relative overflow-hidden rounded-xl border text-left transition ${
-                  active ? "border-primary ring-2 ring-primary/40" : "border-border/60 hover:border-foreground/40"
-                }`}
-              >
-                <div className="aspect-video w-full bg-muted">
-                  {b.src ? (
-                    <img src={b.src} alt={b.label} className="h-full w-full object-cover" loading="lazy" />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">No background</div>
-                  )}
-                </div>
-                <div className="p-2.5">
-                  <p className="text-sm font-medium">{b.label}</p>
-                  <p className="text-[11px] text-muted-foreground">{b.hint}</p>
-                </div>
-                {b.animated && (
-                  <span className="absolute right-2 top-2 rounded-full bg-background/80 px-2 py-0.5 text-[10px] font-medium">
-                    animated
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </Card>
-
-      <Card className="border-border/60 p-6">
-        <h3 className="font-display text-lg">Overlay & độ mờ</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Đảm bảo nội dung dashboard luôn dễ đọc.
-        </p>
-        <div className="mt-5 grid gap-5">
-          <div>
-            <Label>Lớp phủ</Label>
-            <Select value={bg.overlay} onValueChange={(v) => setBg((p) => ({ ...p, overlay: v as never }))}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Không</SelectItem>
-                <SelectItem value="light">Trắng mờ</SelectItem>
-                <SelectItem value="dark">Tối mờ</SelectItem>
-                <SelectItem value="cream">Kem ấm</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <div className="flex items-center justify-between">
-              <Label>Độ phủ</Label>
-              <span className="text-xs text-muted-foreground">{bg.overlayStrength}%</span>
-            </div>
-            <Slider
-              value={[bg.overlayStrength]}
-              max={100}
-              step={1}
-              onValueChange={([v]) => setBg((p) => ({ ...p, overlayStrength: v }))}
-              className="mt-2"
-            />
-          </div>
-          <div>
-            <div className="flex items-center justify-between">
-              <Label>Blur (px)</Label>
-              <span className="text-xs text-muted-foreground">{bg.blur}px</span>
-            </div>
-            <Slider
-              value={[bg.blur]}
-              max={20}
-              step={1}
-              onValueChange={([v]) => setBg((p) => ({ ...p, blur: v }))}
-              className="mt-2"
-            />
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-}
-
 function SoundSection() {
   const [sound, setSound] = useSoundSettings();
   const [, force] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(20 * 60);
   const [timerActive, setTimerActive] = useState(false);
 
-  useEffect(() => {
-    const unsub = subscribeFocus(() => force((n) => n + 1));
-    return () => { unsub; };
-  }, []);
+  useEffect(() => { const unsub = subscribeFocus(() => force((n) => n + 1)); return () => { unsub; }; }, []);
 
   useEffect(() => {
     if (!timerActive) return;
@@ -376,134 +254,139 @@ function SoundSection() {
   return (
     <Card className="max-w-2xl border-border/60 p-6">
       <h3 className="font-display text-lg">Focus sound</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
-        7 âm thanh ambient. Mặc định mỗi phiên 20 phút.
-      </p>
-
+      <p className="mt-1 text-sm text-muted-foreground">7 âm thanh ambient. Mặc định mỗi phiên 20 phút.</p>
       <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {SOUNDS.map((s) => {
           const active = sound.selectedId === s.id;
           return (
-            <button
-              key={s.id}
+            <button key={s.id}
               onClick={() => {
                 setSound((p) => ({ ...p, selectedId: s.id }));
                 if (state.isPlaying) playFocusSound(s.id, sound.volume);
               }}
-              className={`rounded-xl border p-3 text-left transition ${
-                active ? "border-primary bg-primary/5" : "border-border/60 hover:bg-muted"
-              }`}
-            >
+              className={`rounded-xl border p-3 text-left transition ${active ? "border-primary bg-primary/5" : "border-border/60 hover:bg-muted"}`}>
               <span className="text-2xl">{s.emoji}</span>
               <p className="mt-1 text-sm font-medium">{s.label}</p>
             </button>
           );
         })}
       </div>
-
       <div className="mt-6 flex items-center gap-3">
-        <Button
-          onClick={() => {
-            const id = sound.selectedId ?? SOUNDS[0].id;
-            if (state.isPlaying) stopFocusSound();
-            else playFocusSound(id, sound.volume);
-          }}
-          className="gap-2"
-        >
+        <Button onClick={() => {
+          const id = sound.selectedId ?? SOUNDS[0].id;
+          if (state.isPlaying) stopFocusSound(); else playFocusSound(id, sound.volume);
+        }} className="gap-2">
           {state.isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           {state.isPlaying ? "Tạm dừng" : "Phát"}
         </Button>
         <Button variant="outline" onClick={stopFocusSound} className="gap-2">
           <Square className="h-4 w-4" /> Dừng
         </Button>
-        <div className="ml-auto font-display text-2xl tabular-nums">
-          {mm}:{ss}
-        </div>
-        <Button
-          variant={timerActive ? "outline" : "default"}
-          onClick={() => {
-            if (!timerActive && !state.isPlaying) {
-              playFocusSound(sound.selectedId ?? SOUNDS[0].id, sound.volume);
-            }
-            setTimerActive((t) => !t);
-          }}
-        >
+        <div className="ml-auto font-display text-2xl tabular-nums">{mm}:{ss}</div>
+        <Button variant={timerActive ? "outline" : "default"} onClick={() => {
+          if (!timerActive && !state.isPlaying) playFocusSound(sound.selectedId ?? SOUNDS[0].id, sound.volume);
+          setTimerActive((t) => !t);
+        }}>
           {timerActive ? "Hủy timer" : "Bắt đầu 20 phút"}
         </Button>
       </div>
-
       <div className="mt-5 grid gap-4">
         <div>
           <div className="flex items-center justify-between">
             <Label>Volume</Label>
             <span className="text-xs text-muted-foreground">{sound.volume}</span>
           </div>
-          <Slider
-            value={[sound.volume]}
-            max={100}
-            step={1}
-            onValueChange={([v]) => {
-              setSound((p) => ({ ...p, volume: v }));
-              setFocusVolume(v);
-            }}
-            className="mt-2"
-          />
+          <Slider value={[sound.volume]} max={100} step={1}
+            onValueChange={([v]) => { setSound((p) => ({ ...p, volume: v })); setFocusVolume(v); }}
+            className="mt-2" />
         </div>
         <div className="flex items-center justify-between rounded-lg border border-border/60 p-3">
           <div>
             <Label>Lặp vô tận khi hết timer</Label>
             <p className="text-xs text-muted-foreground">Tắt nếu muốn tự dừng sau 20 phút.</p>
           </div>
-          <Switch
-            checked={sound.loopForever}
-            onCheckedChange={(c) => setSound((p) => ({ ...p, loopForever: c }))}
-          />
+          <Switch checked={sound.loopForever}
+            onCheckedChange={(c) => setSound((p) => ({ ...p, loopForever: c }))} />
         </div>
       </div>
     </Card>
   );
 }
 
-function DataSection() {
-  const [prefs, setPrefs] = useDataPrefs();
+function HubSection() {
+  const [hub, setHub] = useHubSettings();
+  const [pwOpen, setPwOpen] = useState(false);
+  const [pw1, setPw1] = useState("");
+  const [pw2, setPw2] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function savePw() {
+    if (pw1.length < 4) return toast.error("Mật khẩu cần ≥ 4 ký tự");
+    if (pw1 !== pw2) return toast.error("Hai mật khẩu không khớp");
+    setBusy(true);
+    const hash = await sha256(pw1);
+    setHub({ passwordEnabled: true, passwordHash: hash });
+    sessionStorage.removeItem("gl_hub_unlocked");
+    setBusy(false);
+    setPw1(""); setPw2("");
+    setPwOpen(false);
+    toast.success("Đã lưu mật khẩu");
+  }
+
+  function toggle(c: boolean) {
+    if (c) {
+      // require setting password
+      setPwOpen(true);
+    } else {
+      setHub({ passwordEnabled: false, passwordHash: null });
+      sessionStorage.removeItem("gl_hub_unlocked");
+      toast.success("Đã tắt mật khẩu Hub");
+    }
+  }
+
   return (
     <Card className="max-w-xl border-border/60 p-6">
-      <h3 className="font-display text-lg">Data & preferences</h3>
-      <div className="mt-5 grid gap-4">
-        <div className="flex items-center justify-between rounded-lg border border-border/60 p-3">
-          <div>
-            <Label>Giảm chuyển động</Label>
-            <p className="text-xs text-muted-foreground">Tắt animation nền.</p>
-          </div>
-          <Switch
-            checked={prefs.reduceMotion}
-            onCheckedChange={(c) => setPrefs((p) => ({ ...p, reduceMotion: c }))}
-          />
-        </div>
-        <div>
-          <Label>Ngôn ngữ</Label>
-          <Select value={prefs.language} onValueChange={(v) => setPrefs((p) => ({ ...p, language: v as never }))}>
-            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="vi">Tiếng Việt</SelectItem>
-              <SelectItem value="en">English</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button
-          variant="destructive"
-          className="self-start"
-          onClick={() => {
-            if (!confirm("Xoá toàn bộ dữ liệu cục bộ? Không thể hoàn tác.")) return;
-            Object.keys(localStorage)
-              .filter((k) => k.startsWith("gl_"))
-              .forEach((k) => localStorage.removeItem(k));
-            location.reload();
-          }}
-        >
-          Xoá dữ liệu cục bộ
-        </Button>
+      <div className="flex items-center gap-2">
+        <Lock className="h-4 w-4" />
+        <h3 className="font-display text-lg">Hub password</h3>
       </div>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Khi bật, mỗi phiên truy cập Hub sẽ cần nhập mật khẩu.
+      </p>
+      <div className="mt-5 flex items-center justify-between rounded-lg border border-border/60 p-3">
+        <div>
+          <Label>Bật bảo vệ Hub bằng mật khẩu</Label>
+          <p className="text-xs text-muted-foreground">
+            {hub.passwordEnabled ? "Đang bật" : "Đang tắt"}
+          </p>
+        </div>
+        <Switch checked={hub.passwordEnabled} onCheckedChange={toggle} />
+      </div>
+      {hub.passwordEnabled && (
+        <Button variant="outline" className="mt-3" onClick={() => setPwOpen(true)}>
+          Đổi mật khẩu
+        </Button>
+      )}
+
+      <Dialog open={pwOpen} onOpenChange={setPwOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Đặt mật khẩu Hub</DialogTitle></DialogHeader>
+          <div className="grid gap-3">
+            <div>
+              <Label>Mật khẩu mới</Label>
+              <Input type="password" className="mt-1" value={pw1} onChange={(e) => setPw1(e.target.value)} />
+            </div>
+            <div>
+              <Label>Nhập lại</Label>
+              <Input type="password" className="mt-1" value={pw2} onChange={(e) => setPw2(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPwOpen(false)}>Hủy</Button>
+            <Button onClick={savePw} disabled={busy}>Lưu</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      hub_links: {
+        Row: {
+          created_at: string
+          id: string
+          parent_path: string
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          parent_path?: string
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          parent_path?: string
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
       shared_invites: {
         Row: {
           created_at: string

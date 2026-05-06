@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { DashboardBackground } from "@/components/DashboardBackground";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 import appCss from "../styles.css?url";
 
@@ -98,6 +99,9 @@ function TopBar() {
         </span>
         <span className="text-muted-foreground/50">/</span>
         <span className="font-display text-sm font-medium">{label}</span>
+      </div>
+      <div className="ml-auto">
+        <LanguageSwitcher />
       </div>
     </header>
   );
