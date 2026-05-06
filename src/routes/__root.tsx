@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { DashboardBackground } from "@/components/DashboardBackground";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 import appCss from "../styles.css?url";
 
