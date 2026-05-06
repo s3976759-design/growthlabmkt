@@ -64,10 +64,9 @@ function Dashboard() {
 
       <div className="grid gap-5 px-6 py-8 md:px-10 lg:grid-cols-3">
         <DateTimeWidget />
-        <FocusMiniPlayer />
-        <Card className="border-border/60 bg-card/80 p-5 shadow-soft backdrop-blur-md">
+        <Card className="border-border/60 bg-card/80 p-5 shadow-soft backdrop-blur-md lg:col-span-2">
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Quick links</p>
-          <div className="mt-3 flex flex-col gap-2 text-sm">
+          <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
             <Link to="/settings" className="text-foreground/80 hover:text-foreground">→ Settings & sharing</Link>
             <Link to="/ai-writer" className="text-foreground/80 hover:text-foreground">→ AI Draft Writer</Link>
             <Link to="/plan" className="text-foreground/80 hover:text-foreground">→ Content planner</Link>
