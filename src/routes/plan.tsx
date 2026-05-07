@@ -31,13 +31,14 @@ const TABS = [
 ];
 
 function PlanPage() {
+  const t = useT();
   const [tab, setTab] = useState("ke-hoach");
   return (
     <div>
       <PageHeader
-        eyebrow="Content Planner"
-        title="Toàn bộ workflow content, một file duy nhất."
-        description="Kế hoạch · Lịch · Công việc · Tổng quan · Ý tưởng · Lưu trữ · Pillars · Sample · Thiết lập."
+        eyebrow={t("plan.eyebrow")}
+        title={t("plan.title")}
+        description={t("plan.desc")}
       />
       <div className="px-6 py-6 md:px-10">
         <Tabs value={tab} onValueChange={setTab}>
