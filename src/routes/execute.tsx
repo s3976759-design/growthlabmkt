@@ -140,9 +140,9 @@ function ExecutePage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Content Execution"
-        title={editing ? "Tinh chỉnh bài viết." : "Viết bài mới."}
-        description="Caption, mục tiêu, version. Sạch sẽ. Không phân tâm."
+        eyebrow={t("execute.eyebrow")}
+        title={editing ? t("execute.title.edit") : t("execute.title.new")}
+        description={t("execute.desc")}
       >
         {editing && (
           <Button variant="ghost" size="sm" onClick={remove} className="gap-2 text-destructive">
