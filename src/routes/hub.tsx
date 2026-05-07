@@ -226,9 +226,9 @@ function HubBrowser() {
   return (
     <div>
       <PageHeader
-        eyebrow="Document Hub"
-        title="Mọi tài liệu, một nơi."
-        description="File, link, và folder có thể đổi tên. Bật mật khẩu trong Settings → Hub."
+        eyebrow={t("hub.eyebrow")}
+        title={t("hub.titlePage")}
+        description={t("hub.desc")}
       >
         <Button variant="outline" className="gap-2" onClick={() => setCreatingFolder(true)}>
           <FolderPlus className="h-4 w-4" /> Thư mục
