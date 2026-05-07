@@ -124,6 +124,7 @@ function UnlockGate({ hash, onUnlock }: { hash: string | null; onUnlock: () => v
 }
 
 function HubBrowser() {
+  const t = useT();
   const [path, setPath] = useState<string>("");
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
