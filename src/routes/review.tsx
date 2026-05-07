@@ -41,9 +41,9 @@ function ReviewPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Weekly Review"
-        title="Nhìn lại để đi xa hơn."
-        description="Lab đọc số liệu của bé và rút ra điều quan trọng nhất."
+        eyebrow={t("review.eyebrow")}
+        title={t("review.title")}
+        description={t("review.desc")}
       />
 
       <div className="grid gap-5 px-6 py-8 md:px-10 lg:grid-cols-4">
