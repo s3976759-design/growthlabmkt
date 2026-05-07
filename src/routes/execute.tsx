@@ -52,6 +52,7 @@ const CTAS = [
 ];
 
 function ExecutePage() {
+  const t = useT();
   const navigate = useNavigate();
   const { id } = Route.useSearch();
   const [contents, setContents] = useContents();
