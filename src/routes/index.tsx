@@ -7,6 +7,7 @@ import { useContents, useIdeas, useWeeklyGoal, engagementRate } from "@/lib/stor
 import { ArrowRight, Lightbulb, PenLine, TrendingUp, Target, Sparkles } from "lucide-react";
 import { useMemo } from "react";
 import { DateTimeWidget } from "@/components/DateTimeWidget";
+import { useT } from "@/lib/i18n";
 
 
 export const Route = createFileRoute("/")({
