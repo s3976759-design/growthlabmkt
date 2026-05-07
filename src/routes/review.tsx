@@ -18,6 +18,7 @@ export const Route = createFileRoute("/review")({
 });
 
 function ReviewPage() {
+  const t = useT();
   const [contents] = useContents();
   const [goal] = useWeeklyGoal();
 
