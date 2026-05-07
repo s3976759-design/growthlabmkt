@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { useT } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,7 @@ const industries: Industry[] = ["Food", "Healthcare", "Beauty", "Tech", "Educati
 const formats: Format[] = ["Reel", "Post", "Story", "Carousel", "Video", "Article", "Live"];
 
 function BrainPage() {
+  const t = useT();
   const [ideas, setIdeas] = useIdeas();
   const [query, setQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
@@ -68,9 +70,9 @@ function BrainPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Content Brain"
-        title="Idea database, không phải note."
-        description="Mọi insight, trend, ý tưởng đều có chỗ. Tag rõ ngành & format để biến thành content có chủ đích."
+        eyebrow={t("brain.eyebrow")}
+        title={t("brain.title")}
+        description={t("brain.desc")}
       >
         <IdeaDialog
           trigger={<Button className="gap-2"><Plus className="h-4 w-4" /> Ý tưởng mới</Button>}

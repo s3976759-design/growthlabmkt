@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { useT } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,6 +124,7 @@ function UnlockGate({ hash, onUnlock }: { hash: string | null; onUnlock: () => v
 }
 
 function HubBrowser() {
+  const t = useT();
   const [path, setPath] = useState<string>("");
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -224,9 +226,9 @@ function HubBrowser() {
   return (
     <div>
       <PageHeader
-        eyebrow="Document Hub"
-        title="Mọi tài liệu, một nơi."
-        description="File, link, và folder có thể đổi tên. Bật mật khẩu trong Settings → Hub."
+        eyebrow={t("hub.eyebrow")}
+        title={t("hub.titlePage")}
+        description={t("hub.desc")}
       >
         <Button variant="outline" className="gap-2" onClick={() => setCreatingFolder(true)}>
           <FolderPlus className="h-4 w-4" /> Thư mục

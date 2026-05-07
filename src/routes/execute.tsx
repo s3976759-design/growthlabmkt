@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { z } from "zod";
 import { PageHeader } from "@/components/PageHeader";
+import { useT } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ const CTAS = [
 ];
 
 function ExecutePage() {
+  const t = useT();
   const navigate = useNavigate();
   const { id } = Route.useSearch();
   const [contents, setContents] = useContents();
@@ -138,9 +140,9 @@ function ExecutePage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Content Execution"
-        title={editing ? "Tinh chỉnh bài viết." : "Viết bài mới."}
-        description="Caption, mục tiêu, version. Sạch sẽ. Không phân tâm."
+        eyebrow={t("execute.eyebrow")}
+        title={editing ? t("execute.title.edit") : t("execute.title.new")}
+        description={t("execute.desc")}
       >
         {editing && (
           <Button variant="ghost" size="sm" onClick={remove} className="gap-2 text-destructive">

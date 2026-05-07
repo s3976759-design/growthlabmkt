@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { useT } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, TrendingUp, Award, Target, Zap } from "lucide-react";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/review")({
 });
 
 function ReviewPage() {
+  const t = useT();
   const [contents] = useContents();
   const [goal] = useWeeklyGoal();
 
@@ -39,9 +41,9 @@ function ReviewPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Weekly Review"
-        title="Nhìn lại để đi xa hơn."
-        description="Lab đọc số liệu của bé và rút ra điều quan trọng nhất."
+        eyebrow={t("review.eyebrow")}
+        title={t("review.title")}
+        description={t("review.desc")}
       />
 
       <div className="grid gap-5 px-6 py-8 md:px-10 lg:grid-cols-4">

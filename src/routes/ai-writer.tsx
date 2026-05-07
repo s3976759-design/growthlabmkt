@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { PageHeader } from "@/components/PageHeader";
+import { useT } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +63,7 @@ const INITIAL: FormState = {
 };
 
 function AIWriterPage() {
+  const t = useT();
   const [form, setForm] = useState<FormState>(INITIAL);
   const [output, setOutput] = useState<DraftOutput | null>(null);
   const [loading, setLoading] = useState(false);
@@ -150,9 +152,9 @@ function AIWriterPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="AI Draft Writer"
-        title="Ý tưởng → Bản nháp, trong 10 giây."
-        description="Điền brief, AI viết hook, caption hoặc script, đề xuất CTA & hashtag. Lưu thẳng vào Content Planner."
+        eyebrow={t("aiwriter.eyebrow")}
+        title={t("aiwriter.title")}
+        description={t("aiwriter.desc")}
       />
 
       <div className="grid gap-6 px-6 py-8 md:px-10 lg:grid-cols-[420px,1fr]">

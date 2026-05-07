@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { useT } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/track")({
 });
 
 function TrackPage() {
+  const t = useT();
   const [contents, setContents] = useContents();
   const posted = contents
     .filter((c) => c.status === "posted")
@@ -47,9 +49,9 @@ function TrackPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Performance Tracker"
-        title="Số liệu là sự thật."
-        description="Nhập reach, engagement, saves, shares. Lab tự tính ER và tìm bài top."
+        eyebrow={t("track.eyebrow")}
+        title={t("track.title")}
+        description={t("track.desc")}
       />
 
       <div className="px-6 py-8 md:px-10">

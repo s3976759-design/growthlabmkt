@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { useT } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -29,10 +30,11 @@ export const Route = createFileRoute("/settings")({
 
 
 function SettingsPage() {
+  const t = useT();
   return (
     <div>
-      <PageHeader eyebrow="Cấu hình" title="Settings"
-        description="Tài khoản, âm thanh tập trung, mật khẩu Hub." />
+      <PageHeader eyebrow={t("settings.eyebrow")} title={t("settings.title")}
+        description={t("settings.desc")} />
       <div className="px-6 py-6 md:px-10">
         <Tabs defaultValue="account">
           <TabsList className="flex-wrap">
