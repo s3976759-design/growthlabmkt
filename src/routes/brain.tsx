@@ -39,6 +39,7 @@ const industries: Industry[] = ["Food", "Healthcare", "Beauty", "Tech", "Educati
 const formats: Format[] = ["Reel", "Post", "Story", "Carousel", "Video", "Article", "Live"];
 
 function BrainPage() {
+  const t = useT();
   const [ideas, setIdeas] = useIdeas();
   const [query, setQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
