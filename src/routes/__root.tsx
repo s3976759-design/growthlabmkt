@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { DashboardBackground } from "@/components/DashboardBackground";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useT, type DictKey } from "@/lib/i18n";
 
 import appCss from "../styles.css?url";
 
@@ -74,21 +75,23 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-const tabLabels: Record<string, string> = {
-  "/": "Dashboard",
-  "/brain": "Content Brain",
-  "/plan": "Content Planner",
-  "/execute": "Content Execution",
-  "/ai-writer": "AI Draft Writer",
-  "/track": "Performance Tracker",
-  "/review": "Weekly Review",
-  "/hub": "Document Hub",
-  "/settings": "Settings",
+const tabLabels: Record<string, DictKey> = {
+  "/": "page.dashboard",
+  "/brain": "page.brain",
+  "/plan": "page.plan",
+  "/execute": "page.execute",
+  "/ai-writer": "page.aiwriter",
+  "/track": "page.track",
+  "/review": "page.review",
+  "/hub": "page.hub",
+  "/settings": "page.settings",
 };
 
 function TopBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const label = tabLabels[pathname] ?? "Growth Lab";
+  const t = useT();
+  const key = tabLabels[pathname];
+  const label = key ? t(key) : "Growth Lab";
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-background/80 px-4 backdrop-blur-md">
       <SidebarTrigger className="-ml-1" />

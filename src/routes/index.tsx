@@ -7,6 +7,7 @@ import { useContents, useIdeas, useWeeklyGoal, engagementRate } from "@/lib/stor
 import { ArrowRight, Lightbulb, PenLine, TrendingUp, Target, Sparkles } from "lucide-react";
 import { useMemo } from "react";
 import { DateTimeWidget } from "@/components/DateTimeWidget";
+import { useT } from "@/lib/i18n";
 
 
 export const Route = createFileRoute("/")({
@@ -23,6 +24,7 @@ function Dashboard() {
   const [contents] = useContents();
   const [ideas] = useIdeas();
   const [goal, setGoal] = useWeeklyGoal();
+  const t = useT();
 
   const weekStart = useMemo(() => {
     const d = new Date();
@@ -46,18 +48,18 @@ function Dashboard() {
   return (
     <div>
       <PageHeader
-        eyebrow="Tuần này"
-        title="Lab của bạn hôm nay."
-        description="Theo dõi nhịp content, biến số liệu thành quyết định, biến quyết định thành tăng trưởng."
+        eyebrow={t("dash.eyebrow")}
+        title={t("dash.title")}
+        description={t("dash.desc")}
       >
         <Button asChild variant="default" className="gap-2">
           <Link to="/execute">
-            <PenLine className="h-4 w-4" /> Viết bài mới
+            <PenLine className="h-4 w-4" /> {t("dash.write")}
           </Link>
         </Button>
         <Button asChild variant="outline" className="gap-2">
           <Link to="/brain">
-            <Lightbulb className="h-4 w-4" /> Thêm ý tưởng
+            <Lightbulb className="h-4 w-4" /> {t("dash.addIdea")}
           </Link>
         </Button>
       </PageHeader>
@@ -65,12 +67,12 @@ function Dashboard() {
       <div className="grid gap-5 px-6 py-8 md:px-10 lg:grid-cols-3">
         <DateTimeWidget />
         <Card className="border-border/60 bg-card/80 p-5 shadow-soft backdrop-blur-md lg:col-span-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Quick links</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">{t("dash.quickLinks")}</p>
           <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-            <Link to="/settings" className="text-foreground/80 hover:text-foreground">→ Settings & sharing</Link>
-            <Link to="/ai-writer" className="text-foreground/80 hover:text-foreground">→ AI Draft Writer</Link>
-            <Link to="/plan" className="text-foreground/80 hover:text-foreground">→ Content planner</Link>
-            <Link to="/hub" className="text-foreground/80 hover:text-foreground">→ Document hub</Link>
+            <Link to="/settings" className="text-foreground/80 hover:text-foreground">→ {t("nav.settings")}</Link>
+            <Link to="/ai-writer" className="text-foreground/80 hover:text-foreground">→ {t("nav.aiwriter")}</Link>
+            <Link to="/plan" className="text-foreground/80 hover:text-foreground">→ {t("nav.plan")}</Link>
+            <Link to="/hub" className="text-foreground/80 hover:text-foreground">→ {t("nav.hub")}</Link>
           </div>
         </Card>
 
