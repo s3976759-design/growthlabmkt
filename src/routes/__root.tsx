@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { DashboardBackground } from "@/components/DashboardBackground";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useT, type DictKey } from "@/lib/i18n";
 
 import appCss from "../styles.css?url";
 
