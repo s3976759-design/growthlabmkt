@@ -23,17 +23,18 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { useT, type DictKey } from "@/lib/i18n";
 
-const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Brain", url: "/brain", icon: Lightbulb, hint: "Ideas & insights" },
-  { title: "Plan", url: "/plan", icon: CalendarDays, hint: "Calendar & Kanban" },
-  { title: "Execute", url: "/execute", icon: PenLine, hint: "Write content" },
-  { title: "AI Writer", url: "/ai-writer", icon: Wand2, hint: "AI Draft Writer" },
-  { title: "Track", url: "/track", icon: LineChart, hint: "Performance" },
-  { title: "Review", url: "/review", icon: Sparkles, hint: "Weekly insights" },
-  { title: "Hub", url: "/hub", icon: FolderOpen, hint: "Documents" },
-  { title: "Settings", url: "/settings", icon: SettingsIcon },
+const items: { key: DictKey; url: string; icon: typeof LayoutDashboard }[] = [
+  { key: "nav.dashboard", url: "/", icon: LayoutDashboard },
+  { key: "nav.brain", url: "/brain", icon: Lightbulb },
+  { key: "nav.plan", url: "/plan", icon: CalendarDays },
+  { key: "nav.execute", url: "/execute", icon: PenLine },
+  { key: "nav.aiwriter", url: "/ai-writer", icon: Wand2 },
+  { key: "nav.track", url: "/track", icon: LineChart },
+  { key: "nav.review", url: "/review", icon: Sparkles },
+  { key: "nav.hub", url: "/hub", icon: FolderOpen },
+  { key: "nav.settings", url: "/settings", icon: SettingsIcon },
 ];
 
 export function AppSidebar() {
