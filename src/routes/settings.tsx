@@ -8,9 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -30,18 +27,6 @@ export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
-interface Invite {
-  id: string;
-  email: string;
-  permission: "view" | "comment" | "edit";
-  status: "pending" | "accepted" | "revoked";
-  invited_at: string;
-}
-
-const inviteSchema = z.object({
-  email: z.string().trim().email("Email không hợp lệ").max(255),
-  permission: z.enum(["view", "comment", "edit"]),
-});
 
 function SettingsPage() {
   return (
