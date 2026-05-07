@@ -63,6 +63,7 @@ const INITIAL: FormState = {
 };
 
 function AIWriterPage() {
+  const t = useT();
   const [form, setForm] = useState<FormState>(INITIAL);
   const [output, setOutput] = useState<DraftOutput | null>(null);
   const [loading, setLoading] = useState(false);
