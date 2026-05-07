@@ -21,6 +21,7 @@ export const Route = createFileRoute("/track")({
 });
 
 function TrackPage() {
+  const t = useT();
   const [contents, setContents] = useContents();
   const posted = contents
     .filter((c) => c.status === "posted")
