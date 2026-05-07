@@ -39,6 +39,7 @@ const items: { key: DictKey; url: string; icon: typeof LayoutDashboard }[] = [
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const t = useT();
 
   return (
     <Sidebar collapsible="icon">
@@ -58,17 +59,18 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Workflow</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("sidebar.workflow")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
                 const active = pathname === item.url;
+                const label = t(item.key);
                 return (
                   <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
+                    <SidebarMenuButton asChild isActive={active} tooltip={label}>
                       <Link to={item.url}>
                         <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                        <span>{label}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -82,9 +84,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <div className="rounded-lg border border-border/60 bg-surface/60 p-3 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
           <p className="font-display text-sm text-foreground">Idea → Insight</p>
-          <p className="mt-1 leading-relaxed">
-            Đừng làm content mù mờ. Đo, học, lặp lại.
-          </p>
+          <p className="mt-1 leading-relaxed">{t("sidebar.tagline")}</p>
         </div>
       </SidebarFooter>
     </Sidebar>
