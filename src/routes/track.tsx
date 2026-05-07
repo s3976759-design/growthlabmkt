@@ -49,9 +49,9 @@ function TrackPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Performance Tracker"
-        title="Số liệu là sự thật."
-        description="Nhập reach, engagement, saves, shares. Lab tự tính ER và tìm bài top."
+        eyebrow={t("track.eyebrow")}
+        title={t("track.title")}
+        description={t("track.desc")}
       />
 
       <div className="px-6 py-8 md:px-10">
