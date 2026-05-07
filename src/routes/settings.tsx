@@ -29,10 +29,11 @@ export const Route = createFileRoute("/settings")({
 
 
 function SettingsPage() {
+  const t = useT();
   return (
     <div>
-      <PageHeader eyebrow="Cấu hình" title="Settings"
-        description="Tài khoản, âm thanh tập trung, mật khẩu Hub." />
+      <PageHeader eyebrow={t("settings.eyebrow")} title={t("settings.title")}
+        description={t("settings.desc")} />
       <div className="px-6 py-6 md:px-10">
         <Tabs defaultValue="account">
           <TabsList className="flex-wrap">
