@@ -152,9 +152,9 @@ function AIWriterPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="AI Draft Writer"
-        title="Ý tưởng → Bản nháp, trong 10 giây."
-        description="Điền brief, AI viết hook, caption hoặc script, đề xuất CTA & hashtag. Lưu thẳng vào Content Planner."
+        eyebrow={t("aiwriter.eyebrow")}
+        title={t("aiwriter.title")}
+        description={t("aiwriter.desc")}
       />
 
       <div className="grid gap-6 px-6 py-8 md:px-10 lg:grid-cols-[420px,1fr]">
