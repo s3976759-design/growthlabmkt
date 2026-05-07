@@ -50,17 +50,15 @@ function SettingsPage() {
   return (
     <div>
       <PageHeader eyebrow="Cấu hình" title="Settings"
-        description="Tài khoản, chia sẻ workflow, âm thanh tập trung, mật khẩu Hub." />
+        description="Tài khoản, âm thanh tập trung, mật khẩu Hub." />
       <div className="px-6 py-6 md:px-10">
         <Tabs defaultValue="account">
           <TabsList className="flex-wrap">
             <TabsTrigger value="account">Account</TabsTrigger>
-            <TabsTrigger value="share">Share workflow</TabsTrigger>
             <TabsTrigger value="sound">Focus sound</TabsTrigger>
             <TabsTrigger value="hub">Hub</TabsTrigger>
           </TabsList>
           <TabsContent value="account" className="mt-6"><AccountSection /></TabsContent>
-          <TabsContent value="share" className="mt-6"><ShareSection /></TabsContent>
           <TabsContent value="sound" className="mt-6"><SoundSection /></TabsContent>
           <TabsContent value="hub" className="mt-6"><HubSection /></TabsContent>
         </Tabs>
@@ -92,134 +90,6 @@ function AccountSection() {
       </div>
     </Card>
   );
-}
-
-function ShareSection() {
-  const [account] = useAccount();
-  const [list, setList] = useState<Invite[]>([]);
-  const [email, setEmail] = useState("");
-  const [perm, setPerm] = useState<Invite["permission"]>("view");
-  const [loading, setLoading] = useState(false);
-
-  async function load() {
-    const { data, error } = await supabase.from("shared_invites").select("*")
-      .order("invited_at", { ascending: false });
-    if (error) toast.error(error.message);
-    else setList((data ?? []) as Invite[]);
-  }
-  useEffect(() => { load(); }, []);
-
-  async function send() {
-    const parsed = inviteSchema.safeParse({ email, permission: perm });
-    if (!parsed.success) return toast.error(parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ");
-    setLoading(true);
-    const { error } = await supabase.from("shared_invites").insert({
-      email: parsed.data.email, permission: parsed.data.permission, status: "pending",
-    });
-    if (error) {
-      setLoading(false);
-      return toast.error(error.message);
-    }
-    // fire email
-    const { data: emailRes, error: fnErr } = await supabase.functions.invoke("send-invite", {
-      body: {
-        email: parsed.data.email,
-        permission: parsed.data.permission,
-        inviter: account.displayName || "Growth Lab",
-      },
-    });
-    setLoading(false);
-    if (fnErr) {
-      toast.warning(`Đã lưu lời mời, nhưng email chưa gửi: ${fnErr.message}`);
-    } else if ((emailRes as { error?: string } | null)?.error) {
-      toast.warning(`Đã lưu lời mời, nhưng email chưa gửi: ${(emailRes as { error: string }).error}`);
-    } else {
-      toast.success(`Đã gửi email mời tới ${parsed.data.email}`);
-    }
-    setEmail("");
-    load();
-  }
-
-  async function revoke(id: string) {
-    const { error } = await supabase.from("shared_invites").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Đã thu hồi"); load();
-  }
-  async function markAccepted(id: string) {
-    const { error } = await supabase.from("shared_invites").update({ status: "accepted" }).eq("id", id);
-    if (error) return toast.error(error.message);
-    load();
-  }
-
-  return (
-    <div className="grid gap-6 lg:grid-cols-[1fr,1.2fr]">
-      <Card className="border-border/60 p-6">
-        <h3 className="font-display text-lg">Mời bạn bè</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Lời mời sẽ được gửi qua email tới người nhận.
-        </p>
-        <div className="mt-5 grid gap-3">
-          <div>
-            <Label>Email</Label>
-            <Input className="mt-1" type="email" placeholder="friend@gmail.com"
-              value={email} maxLength={255} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div>
-            <Label>Quyền truy cập</Label>
-            <Select value={perm} onValueChange={(v) => setPerm(v as Invite["permission"])}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="view">View only</SelectItem>
-                <SelectItem value="comment">Can comment</SelectItem>
-                <SelectItem value="edit">Can edit</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button onClick={send} disabled={loading} className="gap-2 self-start">
-            <Send className="h-4 w-4" /> Send invite
-          </Button>
-        </div>
-      </Card>
-
-      <Card className="border-border/60 p-6">
-        <h3 className="font-display text-lg">Đang có quyền truy cập</h3>
-        {list.length === 0 ? (
-          <p className="mt-4 rounded-lg border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-            Chưa có ai. Mời người đầu tiên ở bên trái.
-          </p>
-        ) : (
-          <ul className="mt-4 divide-y divide-border/60">
-            {list.map((inv) => (
-              <li key={inv.id} className="flex items-center justify-between gap-3 py-3">
-                <div>
-                  <p className="text-sm font-medium">{inv.email}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {permLabel(inv.permission)} ·{" "}
-                    {new Date(inv.invited_at).toLocaleDateString("vi-VN")}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={inv.status === "accepted" ? "default" : "secondary"}>{inv.status}</Badge>
-                  {inv.status === "pending" && (
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => markAccepted(inv.id)}>
-                      <Check className="h-4 w-4" />
-                    </Button>
-                  )}
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => revoke(inv.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-    </div>
-  );
-}
-
-function permLabel(p: Invite["permission"]) {
-  return { view: "View only", comment: "Can comment", edit: "Can edit" }[p];
 }
 
 function SoundSection() {
