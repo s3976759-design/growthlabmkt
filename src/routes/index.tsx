@@ -24,6 +24,7 @@ function Dashboard() {
   const [contents] = useContents();
   const [ideas] = useIdeas();
   const [goal, setGoal] = useWeeklyGoal();
+  const t = useT();
 
   const weekStart = useMemo(() => {
     const d = new Date();
