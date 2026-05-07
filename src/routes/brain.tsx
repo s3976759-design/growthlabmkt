@@ -70,9 +70,9 @@ function BrainPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Content Brain"
-        title="Idea database, không phải note."
-        description="Mọi insight, trend, ý tưởng đều có chỗ. Tag rõ ngành & format để biến thành content có chủ đích."
+        eyebrow={t("brain.eyebrow")}
+        title={t("brain.title")}
+        description={t("brain.desc")}
       >
         <IdeaDialog
           trigger={<Button className="gap-2"><Plus className="h-4 w-4" /> Ý tưởng mới</Button>}
