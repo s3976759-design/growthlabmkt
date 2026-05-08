@@ -125,7 +125,16 @@ export function PlanTable({ mode }: Props) {
                   const v = row[c.key];
                   return (
                     <td key={c.key} className="px-1 py-1 align-top">
-                      {c.type === "select" ? (
+                      {c.type === "title" ? (
+                        <button
+                          type="button"
+                          onClick={() => setOpenId(row.id)}
+                          className="block min-w-48 max-w-xs truncate rounded border border-transparent bg-transparent px-2 py-1 text-left text-xs font-medium hover:border-border hover:bg-accent/50"
+                          title="Bấm để mở nội dung"
+                        >
+                          {(v as string) || <span className="text-muted-foreground">(bấm để mở)</span>}
+                        </button>
+                      ) : c.type === "select" ? (
                         <Select
                           value={(v as string) || ""}
                           onValueChange={(val) => update(row.id, c.key, val)}
