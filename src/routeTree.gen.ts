@@ -13,6 +13,7 @@ import { Route as TrackRouteImport } from './routes/track'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as PlanRouteImport } from './routes/plan'
+import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as ExecuteRouteImport } from './routes/execute'
 import { Route as BrainRouteImport } from './routes/brain'
@@ -37,6 +38,11 @@ const ReviewRoute = ReviewRouteImport.update({
 const PlanRoute = PlanRouteImport.update({
   id: '/plan',
   path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PipelineRoute = PipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HubRoute = HubRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
   '/hub': typeof HubRoute
+  '/pipeline': typeof PipelineRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
   '/hub': typeof HubRoute
+  '/pipeline': typeof PipelineRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/brain': typeof BrainRoute
   '/execute': typeof ExecuteRoute
   '/hub': typeof HubRoute
+  '/pipeline': typeof PipelineRoute
   '/plan': typeof PlanRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/brain'
     | '/execute'
     | '/hub'
+    | '/pipeline'
     | '/plan'
     | '/review'
     | '/settings'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/brain'
     | '/execute'
     | '/hub'
+    | '/pipeline'
     | '/plan'
     | '/review'
     | '/settings'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/brain'
     | '/execute'
     | '/hub'
+    | '/pipeline'
     | '/plan'
     | '/review'
     | '/settings'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   BrainRoute: typeof BrainRoute
   ExecuteRoute: typeof ExecuteRoute
   HubRoute: typeof HubRoute
+  PipelineRoute: typeof PipelineRoute
   PlanRoute: typeof PlanRoute
   ReviewRoute: typeof ReviewRoute
   SettingsRoute: typeof SettingsRoute
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/plan'
       fullPath: '/plan'
       preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pipeline': {
+      id: '/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof PipelineRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hub': {
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrainRoute: BrainRoute,
   ExecuteRoute: ExecuteRoute,
   HubRoute: HubRoute,
+  PipelineRoute: PipelineRoute,
   PlanRoute: PlanRoute,
   ReviewRoute: ReviewRoute,
   SettingsRoute: SettingsRoute,

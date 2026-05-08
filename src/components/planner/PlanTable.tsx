@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -8,6 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 import {
   usePlannerRows,
@@ -26,7 +30,7 @@ interface Props {
 
 function buildCols(cfg: PlannerConfig) {
   return [
-    { key: "title", label: "TIÊU ĐỀ / NỘI DUNG CHÍNH", type: "text" as const },
+    { key: "title", label: "TIÊU ĐỀ / NỘI DUNG CHÍNH", type: "title" as const },
     { key: "assignee", label: "NGƯỜI THỰC HIỆN", type: "select" as const, options: cfg.assignees },
     { key: "status", label: "TRẠNG THÁI", type: "select" as const, options: cfg.statuses },
     { key: "contentType", label: "LOẠI NỘI DUNG", type: "select" as const, options: cfg.contentTypes },
@@ -37,16 +41,13 @@ function buildCols(cfg: PlannerConfig) {
     { key: "demoTime", label: "GIỜ CÓ DEMO", type: "time" as const },
     { key: "postDate", label: "NGÀY ĐĂNG", type: "date" as const },
     { key: "postTime", label: "GIỜ ĐĂNG", type: "time" as const },
-    { key: "body", label: "NỘI DUNG", type: "textarea" as const },
-    { key: "hashtag", label: "HASHTAG", type: "text" as const },
     { key: "assetLink", label: "ASSET LINK", type: "text" as const },
     { key: "note", label: "GHI CHÚ", type: "textarea" as const },
     { key: "views", label: "SỐ LƯỢT XEM", type: "number" as const },
     { key: "interactions", label: "SỐ LƯỢT TƯƠNG TÁC", type: "number" as const },
     { key: "shares", label: "SỐ LƯỢT CHIA SẺ", type: "number" as const },
     { key: "saves", label: "SỐ LƯỢT LƯU LẠI", type: "number" as const },
-    { key: "recordedAt", label: "NGÀY GHI LẠI", type: "date" as const },
-  ] satisfies { key: keyof PlannerRow; label: string; type: "select" | "date" | "time" | "number" | "text" | "textarea"; options?: string[] }[];
+  ] satisfies { key: keyof PlannerRow; label: string; type: "select" | "date" | "time" | "number" | "text" | "textarea" | "title"; options?: string[] }[];
 }
 
 function daysLeft(r: PlannerRow): string {
@@ -62,6 +63,7 @@ export function PlanTable({ mode }: Props) {
   const { config } = usePlannerConfig();
   const COLS = useMemo(() => buildCols(config), [config]);
   const [search, setSearch] = useState("");
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     return rows
@@ -70,6 +72,8 @@ export function PlanTable({ mode }: Props) {
         search ? r.title.toLowerCase().includes(search.toLowerCase()) : true
       );
   }, [rows, mode, search]);
+
+  const openRow = useMemo(() => rows.find((r) => r.id === openId) ?? null, [rows, openId]);
 
   const update = (id: string, key: keyof PlannerRow, value: unknown) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [key]: value } : r)));
@@ -121,7 +125,16 @@ export function PlanTable({ mode }: Props) {
                   const v = row[c.key];
                   return (
                     <td key={c.key} className="px-1 py-1 align-top">
-                      {c.type === "select" ? (
+                      {c.type === "title" ? (
+                        <button
+                          type="button"
+                          onClick={() => setOpenId(row.id)}
+                          className="block min-w-48 max-w-xs truncate rounded border border-transparent bg-transparent px-2 py-1 text-left text-xs font-medium hover:border-border hover:bg-accent/50"
+                          title="Bấm để mở nội dung"
+                        >
+                          {(v as string) || <span className="text-muted-foreground">(bấm để mở)</span>}
+                        </button>
+                      ) : c.type === "select" ? (
                         <Select
                           value={(v as string) || ""}
                           onValueChange={(val) => update(row.id, c.key, val)}
@@ -179,6 +192,58 @@ export function PlanTable({ mode }: Props) {
           </tbody>
         </table>
       </div>
+
+      <Dialog open={!!openRow} onOpenChange={(o) => !o && setOpenId(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              <Input
+                value={openRow?.title ?? ""}
+                onChange={(e) => openRow && update(openRow.id, "title", e.target.value)}
+                placeholder="Tiêu đề"
+                className="border-0 px-0 text-lg font-semibold shadow-none focus-visible:ring-0"
+              />
+            </DialogTitle>
+          </DialogHeader>
+
+          {openRow && (
+            <div className="space-y-3">
+              <div>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Nội dung</p>
+                <Textarea
+                  value={openRow.body ?? ""}
+                  onChange={(e) => update(openRow.id, "body", e.target.value)}
+                  rows={10}
+                  className="resize-y text-sm"
+                  placeholder="Viết nội dung chính ở đây…"
+                />
+              </div>
+              <div>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Hashtag</p>
+                <Input
+                  value={openRow.hashtag ?? ""}
+                  onChange={(e) => update(openRow.id, "hashtag", e.target.value)}
+                  placeholder="#tag1 #tag2"
+                  className="font-mono text-xs"
+                />
+              </div>
+              <div>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ghi chú</p>
+                <Textarea
+                  value={openRow.note ?? ""}
+                  onChange={(e) => update(openRow.id, "note", e.target.value)}
+                  rows={3}
+                  className="resize-y text-sm"
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenId(null)}>Đóng</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

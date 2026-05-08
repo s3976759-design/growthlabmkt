@@ -20,11 +20,12 @@ export interface ContentItem {
   id: string;
   title: string;
   caption: string;
+  hashtags?: string;
   versions: { id: string; caption: string; createdAt: number }[];
-  status: Status;
-  platform: Platform;
-  format: Format;
-  goal: Goal;
+  status: string;
+  platform: string;
+  format: string;
+  goal: string;
   scheduledAt?: number;
   postedAt?: number;
   ideaId?: string;

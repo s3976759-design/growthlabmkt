@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { z } from "zod";
 import { PageHeader } from "@/components/PageHeader";
@@ -11,11 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  useContents, useIdeas, uid,
-  type ContentItem, type Platform, type Format, type Goal, type Status,
-} from "@/lib/storage";
-import { Save, Sparkles, History, Trash2, FileText } from "lucide-react";
+import { useContents, useIdeas, uid, type ContentItem } from "@/lib/storage";
+import { usePlannerConfig } from "@/lib/planner";
+import { Save, Sparkles, History, Trash2, FileText, Workflow } from "lucide-react";
 import { toast } from "sonner";
 
 const search = z.object({ id: z.string().optional() });
@@ -30,11 +28,6 @@ export const Route = createFileRoute("/execute")({
   }),
   component: ExecutePage,
 });
-
-const platforms: Platform[] = ["Facebook", "Instagram", "TikTok", "LinkedIn", "Threads", "YouTube"];
-const formats: Format[] = ["Reel", "Post", "Story", "Carousel", "Video", "Article", "Live"];
-const goals: Goal[] = ["Reach", "Engagement", "Conversion", "Awareness", "Retention"];
-const statuses: Status[] = ["idea", "draft", "scheduled", "posted"];
 
 const HOOKS = [
   "Bạn có biết… [statistic shock]?",
@@ -57,30 +50,38 @@ function ExecutePage() {
   const { id } = Route.useSearch();
   const [contents, setContents] = useContents();
   const [ideas] = useIdeas();
+  const { config } = usePlannerConfig();
 
   const editing = useMemo(() => contents.find((c) => c.id === id), [contents, id]);
   const isNew = !editing;
 
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
-  const [platform, setPlatform] = useState<Platform>("Instagram");
-  const [format, setFormat] = useState<Format>("Reel");
-  const [goal, setGoal] = useState<Goal>("Engagement");
-  const [status, setStatus] = useState<Status>("draft");
+  const [hashtags, setHashtags] = useState("");
+  const [platform, setPlatform] = useState<string>(config.platforms[0] ?? "");
+  const [format, setFormat] = useState<string>(config.formats[0] ?? "");
+  const [goal, setGoal] = useState<string>(config.goals[0] ?? "");
+  const [status, setStatus] = useState<string>(config.statuses[0] ?? "");
   const [ideaId, setIdeaId] = useState<string>("none");
 
   useEffect(() => {
     if (editing) {
       setTitle(editing.title);
       setCaption(editing.caption);
+      setHashtags(editing.hashtags ?? "");
       setPlatform(editing.platform);
       setFormat(editing.format);
       setGoal(editing.goal);
       setStatus(editing.status);
       setIdeaId(editing.ideaId ?? "none");
     } else {
-      setTitle(""); setCaption(""); setStatus("draft");
+      setTitle(""); setCaption(""); setHashtags("");
+      setPlatform(config.platforms[0] ?? "");
+      setFormat(config.formats[0] ?? "");
+      setGoal(config.goals[0] ?? "");
+      setStatus(config.statuses[0] ?? "");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing]);
 
   const save = () => {
@@ -95,7 +96,7 @@ function ExecutePage() {
           const captionChanged = c.caption !== caption;
           return {
             ...c,
-            title, caption, platform, format, goal, status,
+            title, caption, hashtags, platform, format, goal, status,
             ideaId: ideaId === "none" ? undefined : ideaId,
             postedAt: status === "posted" ? c.postedAt ?? Date.now() : c.postedAt,
             versions:
@@ -105,18 +106,22 @@ function ExecutePage() {
           };
         })
       );
-      toast.success("Đã cập nhật");
+      toast.success("Đã cập nhật", {
+        action: { label: "Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
+      });
     } else {
       const item: ContentItem = {
         id: uid(),
-        title, caption, versions: [],
+        title, caption, hashtags, versions: [],
         status, platform, format, goal,
         ideaId: ideaId === "none" ? undefined : ideaId,
         postedAt: status === "posted" ? Date.now() : undefined,
         createdAt: Date.now(),
       };
       setContents((prev) => [item, ...prev]);
-      toast.success("Đã lưu vào pipeline");
+      toast.success("Đã lưu vào pipeline", {
+        action: { label: "Mở Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
+      });
       navigate({ to: "/execute", search: { id: item.id } });
     }
   };
@@ -144,6 +149,9 @@ function ExecutePage() {
         title={editing ? t("execute.title.edit") : t("execute.title.new")}
         description={t("execute.desc")}
       >
+        <Button asChild variant="outline" size="sm" className="gap-2">
+          <Link to="/pipeline"><Workflow className="h-4 w-4" /> Pipeline</Link>
+        </Button>
         {editing && (
           <Button variant="ghost" size="sm" onClick={remove} className="gap-2 text-destructive">
             <Trash2 className="h-4 w-4" /> Xoá
@@ -177,6 +185,16 @@ function ExecutePage() {
             className="mt-3 resize-none border-border/60 bg-surface font-sans text-base leading-relaxed"
           />
 
+          <label className="mt-4 block">
+            <span className="mb-1 block text-xs font-medium text-muted-foreground">Hashtag</span>
+            <Input
+              value={hashtags}
+              onChange={(e) => setHashtags(e.target.value)}
+              placeholder="#growth #marketing #brand"
+              className="font-mono text-sm"
+            />
+          </label>
+
           {editing && editing.versions.length > 0 && (
             <div className="mt-6 border-t border-border/60 pt-5">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -205,32 +223,37 @@ function ExecutePage() {
 
         <div className="space-y-4">
           <Card className="border-border/60 bg-card p-5 shadow-soft">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Setup
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Setup
+              </p>
+              <Link to="/plan" className="text-[10px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
+                Sửa danh sách trong Plan → Thiết lập
+              </Link>
+            </div>
             <div className="mt-4 space-y-3">
               <Field label="Channel">
-                <Select value={platform} onValueChange={(v) => setPlatform(v as Platform)}>
+                <Select value={platform} onValueChange={setPlatform}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{platforms.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                  <SelectContent>{config.platforms.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
               <Field label="Format">
-                <Select value={format} onValueChange={(v) => setFormat(v as Format)}>
+                <Select value={format} onValueChange={setFormat}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{formats.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
+                  <SelectContent>{config.formats.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
               <Field label="Mục tiêu">
-                <Select value={goal} onValueChange={(v) => setGoal(v as Goal)}>
+                <Select value={goal} onValueChange={setGoal}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{goals.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
+                  <SelectContent>{config.goals.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
               <Field label="Trạng thái">
-                <Select value={status} onValueChange={(v) => setStatus(v as Status)}>
+                <Select value={status} onValueChange={setStatus}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{statuses.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
+                  <SelectContent>{config.statuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
               <Field label="Từ ý tưởng">

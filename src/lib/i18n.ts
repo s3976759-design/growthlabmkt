@@ -15,6 +15,7 @@ const dict = {
   "nav.review": { vi: "Review", en: "Review", zh: "复盘" },
   "nav.hub": { vi: "Hub", en: "Hub", zh: "资料库" },
   "nav.settings": { vi: "Settings", en: "Settings", zh: "设置" },
+  "nav.pipeline": { vi: "Pipeline", en: "Pipeline", zh: "流水线" },
 
   // Common
   "common.save": { vi: "Lưu", en: "Save", zh: "保存" },
