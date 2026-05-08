@@ -9,6 +9,7 @@ import {
   FlaskConical,
   FolderOpen,
   Wand2,
+  Workflow,
   Settings as SettingsIcon,
 } from "lucide-react";
 import {
@@ -30,6 +31,7 @@ const items: { key: DictKey; url: string; icon: typeof LayoutDashboard }[] = [
   { key: "nav.brain", url: "/brain", icon: Lightbulb },
   { key: "nav.plan", url: "/plan", icon: CalendarDays },
   { key: "nav.execute", url: "/execute", icon: PenLine },
+  { key: "nav.pipeline", url: "/pipeline", icon: Workflow },
   { key: "nav.aiwriter", url: "/ai-writer", icon: Wand2 },
   { key: "nav.track", url: "/track", icon: LineChart },
   { key: "nav.review", url: "/review", icon: Sparkles },
