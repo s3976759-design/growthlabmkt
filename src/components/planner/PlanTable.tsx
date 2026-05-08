@@ -63,6 +63,7 @@ export function PlanTable({ mode }: Props) {
   const { config } = usePlannerConfig();
   const COLS = useMemo(() => buildCols(config), [config]);
   const [search, setSearch] = useState("");
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     return rows
@@ -71,6 +72,8 @@ export function PlanTable({ mode }: Props) {
         search ? r.title.toLowerCase().includes(search.toLowerCase()) : true
       );
   }, [rows, mode, search]);
+
+  const openRow = useMemo(() => rows.find((r) => r.id === openId) ?? null, [rows, openId]);
 
   const update = (id: string, key: keyof PlannerRow, value: unknown) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [key]: value } : r)));
