@@ -30,7 +30,7 @@ interface Props {
 
 function buildCols(cfg: PlannerConfig) {
   return [
-    { key: "title", label: "TIÊU ĐỀ / NỘI DUNG CHÍNH", type: "text" as const },
+    { key: "title", label: "TIÊU ĐỀ / NỘI DUNG CHÍNH", type: "title" as const },
     { key: "assignee", label: "NGƯỜI THỰC HIỆN", type: "select" as const, options: cfg.assignees },
     { key: "status", label: "TRẠNG THÁI", type: "select" as const, options: cfg.statuses },
     { key: "contentType", label: "LOẠI NỘI DUNG", type: "select" as const, options: cfg.contentTypes },
@@ -41,16 +41,13 @@ function buildCols(cfg: PlannerConfig) {
     { key: "demoTime", label: "GIỜ CÓ DEMO", type: "time" as const },
     { key: "postDate", label: "NGÀY ĐĂNG", type: "date" as const },
     { key: "postTime", label: "GIỜ ĐĂNG", type: "time" as const },
-    { key: "body", label: "NỘI DUNG", type: "textarea" as const },
-    { key: "hashtag", label: "HASHTAG", type: "text" as const },
     { key: "assetLink", label: "ASSET LINK", type: "text" as const },
     { key: "note", label: "GHI CHÚ", type: "textarea" as const },
     { key: "views", label: "SỐ LƯỢT XEM", type: "number" as const },
     { key: "interactions", label: "SỐ LƯỢT TƯƠNG TÁC", type: "number" as const },
     { key: "shares", label: "SỐ LƯỢT CHIA SẺ", type: "number" as const },
     { key: "saves", label: "SỐ LƯỢT LƯU LẠI", type: "number" as const },
-    { key: "recordedAt", label: "NGÀY GHI LẠI", type: "date" as const },
-  ] satisfies { key: keyof PlannerRow; label: string; type: "select" | "date" | "time" | "number" | "text" | "textarea"; options?: string[] }[];
+  ] satisfies { key: keyof PlannerRow; label: string; type: "select" | "date" | "time" | "number" | "text" | "textarea" | "title"; options?: string[] }[];
 }
 
 function daysLeft(r: PlannerRow): string {
