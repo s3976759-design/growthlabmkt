@@ -192,6 +192,58 @@ export function PlanTable({ mode }: Props) {
           </tbody>
         </table>
       </div>
+
+      <Dialog open={!!openRow} onOpenChange={(o) => !o && setOpenId(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              <Input
+                value={openRow?.title ?? ""}
+                onChange={(e) => openRow && update(openRow.id, "title", e.target.value)}
+                placeholder="Tiêu đề"
+                className="border-0 px-0 text-lg font-semibold shadow-none focus-visible:ring-0"
+              />
+            </DialogTitle>
+          </DialogHeader>
+
+          {openRow && (
+            <div className="space-y-3">
+              <div>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Nội dung</p>
+                <Textarea
+                  value={openRow.body ?? ""}
+                  onChange={(e) => update(openRow.id, "body", e.target.value)}
+                  rows={10}
+                  className="resize-y text-sm"
+                  placeholder="Viết nội dung chính ở đây…"
+                />
+              </div>
+              <div>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Hashtag</p>
+                <Input
+                  value={openRow.hashtag ?? ""}
+                  onChange={(e) => update(openRow.id, "hashtag", e.target.value)}
+                  placeholder="#tag1 #tag2"
+                  className="font-mono text-xs"
+                />
+              </div>
+              <div>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ghi chú</p>
+                <Textarea
+                  value={openRow.note ?? ""}
+                  onChange={(e) => update(openRow.id, "note", e.target.value)}
+                  rows={3}
+                  className="resize-y text-sm"
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenId(null)}>Đóng</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
