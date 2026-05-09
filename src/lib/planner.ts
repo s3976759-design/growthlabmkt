@@ -147,6 +147,36 @@ function useStored<T>(key: string, initial: T) {
 
 export const pid = () => Math.random().toString(36).slice(2, 10);
 
+/** Upsert a planner row keyed by an external id (used by Execute → Plan sync). */
+export function upsertPlannerRow(partial: Partial<PlannerRow> & { id: string }) {
+  if (typeof window === "undefined") return;
+  const list = read<PlannerRow[]>(KEYS.rows, []);
+  const idx = list.findIndex((r) => r.id === partial.id);
+  if (idx >= 0) {
+    list[idx] = { ...list[idx], ...partial };
+  } else {
+    list.unshift({
+      id: partial.id,
+      title: partial.title ?? "",
+      assignee: partial.assignee ?? "",
+      status: partial.status ?? "",
+      contentType: partial.contentType ?? "",
+      platform: partial.platform ?? "",
+      format: partial.format ?? "",
+      goal: partial.goal ?? "",
+      createdAt: Date.now(),
+      ...partial,
+    });
+  }
+  write(KEYS.rows, list);
+}
+
+export function deletePlannerRow(id: string) {
+  if (typeof window === "undefined") return;
+  const list = read<PlannerRow[]>(KEYS.rows, []).filter((r) => r.id !== id);
+  write(KEYS.rows, list);
+}
+
 export function usePlannerRows() {
   return useStored<PlannerRow[]>(KEYS.rows, []);
 }
