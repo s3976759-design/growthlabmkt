@@ -156,14 +156,13 @@ export function upsertPlannerRow(partial: Partial<PlannerRow> & { id: string }) 
     list[idx] = { ...list[idx], ...partial };
   } else {
     list.unshift({
-      id: partial.id,
-      title: partial.title ?? "",
-      assignee: partial.assignee ?? "",
-      status: partial.status ?? "",
-      contentType: partial.contentType ?? "",
-      platform: partial.platform ?? "",
-      format: partial.format ?? "",
-      goal: partial.goal ?? "",
+      title: "",
+      assignee: "",
+      status: "",
+      contentType: "",
+      platform: "",
+      format: "",
+      goal: "",
       createdAt: Date.now(),
       ...partial,
     });
