@@ -199,7 +199,58 @@ function ExecutePage() {
       </PageHeader>
 
       <div className="grid gap-6 px-6 py-8 md:px-10 lg:grid-cols-3">
-        <Card className="border-border/60 bg-card p-6 shadow-soft lg:col-span-2">
+        <div className="space-y-4 lg:col-span-2">
+        <Card className="border-border/60 bg-card p-4 shadow-soft">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Lịch & Phân loại (đồng bộ Plan)
+          </p>
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5">
+            <MiniField label="TRẠNG THÁI">
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.statuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="LOẠI NỘI DUNG">
+              <Select value={contentType} onValueChange={setContentType}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.contentTypes.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="NỀN TẢNG">
+              <Select value={platform} onValueChange={setPlatform}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.platforms.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="ĐỊNH DẠNG">
+              <Select value={format} onValueChange={setFormat}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.formats.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="MỤC TIÊU">
+              <Select value={goal} onValueChange={setGoal}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.goals.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="NGÀY CÓ DEMO">
+              <Input type="date" value={demoDate} onChange={(e) => setDemoDate(e.target.value)} className="h-8 text-xs" />
+            </MiniField>
+            <MiniField label="GIỜ CÓ DEMO">
+              <Input type="time" value={demoTime} onChange={(e) => setDemoTime(e.target.value)} className="h-8 text-xs" />
+            </MiniField>
+            <MiniField label="NGÀY ĐĂNG">
+              <Input type="date" value={postDate} onChange={(e) => setPostDate(e.target.value)} className="h-8 text-xs" />
+            </MiniField>
+            <MiniField label="GIỜ ĐĂNG">
+              <Input type="time" value={postTime} onChange={(e) => setPostTime(e.target.value)} className="h-8 text-xs" />
+            </MiniField>
+          </div>
+        </Card>
+
+        <Card className="border-border/60 bg-card p-6 shadow-soft">
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
