@@ -62,6 +62,11 @@ function ExecutePage() {
   const [format, setFormat] = useState<string>(config.formats[0] ?? "");
   const [goal, setGoal] = useState<string>(config.goals[0] ?? "");
   const [status, setStatus] = useState<string>(config.statuses[0] ?? "");
+  const [contentType, setContentType] = useState<string>(config.contentTypes[0] ?? "");
+  const [demoDate, setDemoDate] = useState<string>("");
+  const [demoTime, setDemoTime] = useState<string>("");
+  const [postDate, setPostDate] = useState<string>("");
+  const [postTime, setPostTime] = useState<string>("");
   const [ideaId, setIdeaId] = useState<string>("none");
 
   useEffect(() => {
@@ -73,6 +78,11 @@ function ExecutePage() {
       setFormat(editing.format);
       setGoal(editing.goal);
       setStatus(editing.status);
+      setContentType(editing.contentType ?? config.contentTypes[0] ?? "");
+      setDemoDate(editing.demoDate ?? "");
+      setDemoTime(editing.demoTime ?? "");
+      setPostDate(editing.postDate ?? "");
+      setPostTime(editing.postTime ?? "");
       setIdeaId(editing.ideaId ?? "none");
     } else {
       setTitle(""); setCaption(""); setHashtags("");
@@ -80,46 +90,73 @@ function ExecutePage() {
       setFormat(config.formats[0] ?? "");
       setGoal(config.goals[0] ?? "");
       setStatus(config.statuses[0] ?? "");
+      setContentType(config.contentTypes[0] ?? "");
+      setDemoDate(""); setDemoTime(""); setPostDate(""); setPostTime("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing]);
+
+  const syncToPlan = (item: ContentItem) => {
+    upsertPlannerRow({
+      id: item.id,
+      title: item.title,
+      status: item.status,
+      contentType: item.contentType ?? "",
+      platform: item.platform,
+      format: item.format,
+      goal: item.goal,
+      demoDate: item.demoDate,
+      demoTime: item.demoTime,
+      postDate: item.postDate,
+      postTime: item.postTime,
+      body: item.caption,
+      hashtag: item.hashtags,
+    });
+  };
 
   const save = () => {
     if (!title.trim()) {
       toast.error("Cần một tiêu đề");
       return;
     }
+    const common = {
+      title, caption, hashtags, platform, format, goal, status,
+      contentType, demoDate, demoTime, postDate, postTime,
+      ideaId: ideaId === "none" ? undefined : ideaId,
+    };
     if (editing) {
+      let updated: ContentItem | null = null;
       setContents((prev) =>
         prev.map((c) => {
           if (c.id !== editing.id) return c;
           const captionChanged = c.caption !== caption;
-          return {
+          updated = {
             ...c,
-            title, caption, hashtags, platform, format, goal, status,
-            ideaId: ideaId === "none" ? undefined : ideaId,
+            ...common,
             postedAt: status === "posted" ? c.postedAt ?? Date.now() : c.postedAt,
             versions:
               captionChanged && c.caption
                 ? [{ id: uid(), caption: c.caption, createdAt: Date.now() }, ...c.versions]
                 : c.versions,
           };
+          return updated;
         })
       );
-      toast.success("Đã cập nhật", {
+      if (updated) syncToPlan(updated);
+      toast.success("Đã cập nhật & đồng bộ Plan", {
         action: { label: "Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
       });
     } else {
       const item: ContentItem = {
         id: uid(),
-        title, caption, hashtags, versions: [],
-        status, platform, format, goal,
-        ideaId: ideaId === "none" ? undefined : ideaId,
+        ...common,
+        versions: [],
         postedAt: status === "posted" ? Date.now() : undefined,
         createdAt: Date.now(),
       };
       setContents((prev) => [item, ...prev]);
-      toast.success("Đã lưu vào pipeline", {
+      syncToPlan(item);
+      toast.success("Đã lưu vào Pipeline & Plan", {
         action: { label: "Mở Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
       });
       navigate({ to: "/execute", search: { id: item.id } });
@@ -129,6 +166,7 @@ function ExecutePage() {
   const remove = () => {
     if (!editing) return;
     setContents((prev) => prev.filter((c) => c.id !== editing.id));
+    deletePlannerRow(editing.id);
     toast.success("Đã xoá");
     navigate({ to: "/execute", search: {} });
   };
