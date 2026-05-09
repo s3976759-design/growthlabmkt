@@ -144,13 +144,6 @@ export function PlanTable({ mode }: Props) {
                             ))}
                           </SelectContent>
                         </Select>
-                      ) : c.type === "textarea" ? (
-                        <textarea
-                          value={(v as string) || ""}
-                          onChange={(e) => update(row.id, c.key, e.target.value)}
-                          rows={1}
-                          className="min-w-48 resize-y rounded border border-border/60 bg-transparent px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                        />
                       ) : (
                         <input
                           type={c.type === "number" ? "number" : c.type === "date" ? "date" : c.type === "time" ? "time" : "text"}
