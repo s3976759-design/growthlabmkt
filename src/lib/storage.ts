@@ -26,6 +26,12 @@ export interface ContentItem {
   platform: string;
   format: string;
   goal: string;
+  contentType?: string;
+  assignee?: string;
+  demoDate?: string;
+  demoTime?: string;
+  postDate?: string;
+  postTime?: string;
   scheduledAt?: number;
   postedAt?: number;
   ideaId?: string;
