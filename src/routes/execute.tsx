@@ -309,43 +309,20 @@ function ExecutePage() {
             </div>
           )}
         </Card>
+        </div>
 
         <div className="space-y-4">
           <Card className="border-border/60 bg-card p-5 shadow-soft">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Setup
+                Liên kết
               </p>
               <Link to="/plan" className="text-[10px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
                 Sửa danh sách trong Plan → Thiết lập
               </Link>
             </div>
             <div className="mt-4 space-y-3">
-              <Field label="Channel">
-                <Select value={platform} onValueChange={setPlatform}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{config.platforms.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Format">
-                <Select value={format} onValueChange={setFormat}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{config.formats.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Mục tiêu">
-                <Select value={goal} onValueChange={setGoal}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{config.goals.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Trạng thái">
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{config.statuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Từ ý tưởng">
+              <Field label="Từ ý tưởng (Brain)">
                 <Select value={ideaId} onValueChange={setIdeaId}>
                   <SelectTrigger><SelectValue placeholder="Không gắn" /></SelectTrigger>
                   <SelectContent>
@@ -378,6 +355,15 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return (
     <label className="block">
       <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function MiniField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
       {children}
     </label>
   );
