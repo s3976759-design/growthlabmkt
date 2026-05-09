@@ -41,8 +41,6 @@ function buildCols(cfg: PlannerConfig) {
     { key: "demoTime", label: "GIỜ CÓ DEMO", type: "time" as const },
     { key: "postDate", label: "NGÀY ĐĂNG", type: "date" as const },
     { key: "postTime", label: "GIỜ ĐĂNG", type: "time" as const },
-    { key: "assetLink", label: "ASSET LINK", type: "text" as const },
-    { key: "note", label: "GHI CHÚ", type: "textarea" as const },
     { key: "views", label: "SỐ LƯỢT XEM", type: "number" as const },
     { key: "interactions", label: "SỐ LƯỢT TƯƠNG TÁC", type: "number" as const },
     { key: "shares", label: "SỐ LƯỢT CHIA SẺ", type: "number" as const },
@@ -146,13 +144,6 @@ export function PlanTable({ mode }: Props) {
                             ))}
                           </SelectContent>
                         </Select>
-                      ) : c.type === "textarea" ? (
-                        <textarea
-                          value={(v as string) || ""}
-                          onChange={(e) => update(row.id, c.key, e.target.value)}
-                          rows={1}
-                          className="min-w-48 resize-y rounded border border-border/60 bg-transparent px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                        />
                       ) : (
                         <input
                           type={c.type === "number" ? "number" : c.type === "date" ? "date" : c.type === "time" ? "time" : "text"}

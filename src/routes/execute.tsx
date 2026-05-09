@@ -12,7 +12,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useContents, useIdeas, uid, type ContentItem } from "@/lib/storage";
-import { usePlannerConfig } from "@/lib/planner";
+import { usePlannerConfig, upsertPlannerRow, deletePlannerRow } from "@/lib/planner";
 import { Save, Sparkles, History, Trash2, FileText, Workflow } from "lucide-react";
 import { toast } from "sonner";
 
@@ -62,6 +62,11 @@ function ExecutePage() {
   const [format, setFormat] = useState<string>(config.formats[0] ?? "");
   const [goal, setGoal] = useState<string>(config.goals[0] ?? "");
   const [status, setStatus] = useState<string>(config.statuses[0] ?? "");
+  const [contentType, setContentType] = useState<string>(config.contentTypes[0] ?? "");
+  const [demoDate, setDemoDate] = useState<string>("");
+  const [demoTime, setDemoTime] = useState<string>("");
+  const [postDate, setPostDate] = useState<string>("");
+  const [postTime, setPostTime] = useState<string>("");
   const [ideaId, setIdeaId] = useState<string>("none");
 
   useEffect(() => {
@@ -73,6 +78,11 @@ function ExecutePage() {
       setFormat(editing.format);
       setGoal(editing.goal);
       setStatus(editing.status);
+      setContentType(editing.contentType ?? config.contentTypes[0] ?? "");
+      setDemoDate(editing.demoDate ?? "");
+      setDemoTime(editing.demoTime ?? "");
+      setPostDate(editing.postDate ?? "");
+      setPostTime(editing.postTime ?? "");
       setIdeaId(editing.ideaId ?? "none");
     } else {
       setTitle(""); setCaption(""); setHashtags("");
@@ -80,46 +90,73 @@ function ExecutePage() {
       setFormat(config.formats[0] ?? "");
       setGoal(config.goals[0] ?? "");
       setStatus(config.statuses[0] ?? "");
+      setContentType(config.contentTypes[0] ?? "");
+      setDemoDate(""); setDemoTime(""); setPostDate(""); setPostTime("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing]);
+
+  const syncToPlan = (item: ContentItem) => {
+    upsertPlannerRow({
+      id: item.id,
+      title: item.title,
+      status: item.status,
+      contentType: item.contentType ?? "",
+      platform: item.platform,
+      format: item.format,
+      goal: item.goal,
+      demoDate: item.demoDate,
+      demoTime: item.demoTime,
+      postDate: item.postDate,
+      postTime: item.postTime,
+      body: item.caption,
+      hashtag: item.hashtags,
+    });
+  };
 
   const save = () => {
     if (!title.trim()) {
       toast.error("Cần một tiêu đề");
       return;
     }
+    const common = {
+      title, caption, hashtags, platform, format, goal, status,
+      contentType, demoDate, demoTime, postDate, postTime,
+      ideaId: ideaId === "none" ? undefined : ideaId,
+    };
     if (editing) {
+      let updated: ContentItem | null = null;
       setContents((prev) =>
         prev.map((c) => {
           if (c.id !== editing.id) return c;
           const captionChanged = c.caption !== caption;
-          return {
+          updated = {
             ...c,
-            title, caption, hashtags, platform, format, goal, status,
-            ideaId: ideaId === "none" ? undefined : ideaId,
+            ...common,
             postedAt: status === "posted" ? c.postedAt ?? Date.now() : c.postedAt,
             versions:
               captionChanged && c.caption
                 ? [{ id: uid(), caption: c.caption, createdAt: Date.now() }, ...c.versions]
                 : c.versions,
           };
+          return updated;
         })
       );
-      toast.success("Đã cập nhật", {
+      if (updated) syncToPlan(updated);
+      toast.success("Đã cập nhật & đồng bộ Plan", {
         action: { label: "Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
       });
     } else {
       const item: ContentItem = {
         id: uid(),
-        title, caption, hashtags, versions: [],
-        status, platform, format, goal,
-        ideaId: ideaId === "none" ? undefined : ideaId,
+        ...common,
+        versions: [],
         postedAt: status === "posted" ? Date.now() : undefined,
         createdAt: Date.now(),
       };
       setContents((prev) => [item, ...prev]);
-      toast.success("Đã lưu vào pipeline", {
+      syncToPlan(item);
+      toast.success("Đã lưu vào Pipeline & Plan", {
         action: { label: "Mở Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
       });
       navigate({ to: "/execute", search: { id: item.id } });
@@ -129,6 +166,7 @@ function ExecutePage() {
   const remove = () => {
     if (!editing) return;
     setContents((prev) => prev.filter((c) => c.id !== editing.id));
+    deletePlannerRow(editing.id);
     toast.success("Đã xoá");
     navigate({ to: "/execute", search: {} });
   };
@@ -161,7 +199,58 @@ function ExecutePage() {
       </PageHeader>
 
       <div className="grid gap-6 px-6 py-8 md:px-10 lg:grid-cols-3">
-        <Card className="border-border/60 bg-card p-6 shadow-soft lg:col-span-2">
+        <div className="space-y-4 lg:col-span-2">
+        <Card className="border-border/60 bg-card p-4 shadow-soft">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Lịch & Phân loại (đồng bộ Plan)
+          </p>
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5">
+            <MiniField label="TRẠNG THÁI">
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.statuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="LOẠI NỘI DUNG">
+              <Select value={contentType} onValueChange={setContentType}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.contentTypes.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="NỀN TẢNG">
+              <Select value={platform} onValueChange={setPlatform}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.platforms.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="ĐỊNH DẠNG">
+              <Select value={format} onValueChange={setFormat}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.formats.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="MỤC TIÊU">
+              <Select value={goal} onValueChange={setGoal}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{config.goals.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </MiniField>
+            <MiniField label="NGÀY CÓ DEMO">
+              <Input type="date" value={demoDate} onChange={(e) => setDemoDate(e.target.value)} className="h-8 text-xs" />
+            </MiniField>
+            <MiniField label="GIỜ CÓ DEMO">
+              <Input type="time" value={demoTime} onChange={(e) => setDemoTime(e.target.value)} className="h-8 text-xs" />
+            </MiniField>
+            <MiniField label="NGÀY ĐĂNG">
+              <Input type="date" value={postDate} onChange={(e) => setPostDate(e.target.value)} className="h-8 text-xs" />
+            </MiniField>
+            <MiniField label="GIỜ ĐĂNG">
+              <Input type="time" value={postTime} onChange={(e) => setPostTime(e.target.value)} className="h-8 text-xs" />
+            </MiniField>
+          </div>
+        </Card>
+
+        <Card className="border-border/60 bg-card p-6 shadow-soft">
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -220,43 +309,20 @@ function ExecutePage() {
             </div>
           )}
         </Card>
+        </div>
 
         <div className="space-y-4">
           <Card className="border-border/60 bg-card p-5 shadow-soft">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Setup
+                Liên kết
               </p>
               <Link to="/plan" className="text-[10px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
                 Sửa danh sách trong Plan → Thiết lập
               </Link>
             </div>
             <div className="mt-4 space-y-3">
-              <Field label="Channel">
-                <Select value={platform} onValueChange={setPlatform}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{config.platforms.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Format">
-                <Select value={format} onValueChange={setFormat}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{config.formats.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Mục tiêu">
-                <Select value={goal} onValueChange={setGoal}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{config.goals.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Trạng thái">
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{config.statuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Từ ý tưởng">
+              <Field label="Từ ý tưởng (Brain)">
                 <Select value={ideaId} onValueChange={setIdeaId}>
                   <SelectTrigger><SelectValue placeholder="Không gắn" /></SelectTrigger>
                   <SelectContent>
@@ -289,6 +355,15 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return (
     <label className="block">
       <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function MiniField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
       {children}
     </label>
   );
