@@ -12,7 +12,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useContents, useIdeas, uid, type ContentItem } from "@/lib/storage";
-import { usePlannerConfig } from "@/lib/planner";
+import { usePlannerConfig, upsertPlannerRow, deletePlannerRow } from "@/lib/planner";
 import { Save, Sparkles, History, Trash2, FileText, Workflow } from "lucide-react";
 import { toast } from "sonner";
 
