@@ -41,8 +41,6 @@ function buildCols(cfg: PlannerConfig) {
     { key: "demoTime", label: "GIỜ CÓ DEMO", type: "time" as const },
     { key: "postDate", label: "NGÀY ĐĂNG", type: "date" as const },
     { key: "postTime", label: "GIỜ ĐĂNG", type: "time" as const },
-    { key: "assetLink", label: "ASSET LINK", type: "text" as const },
-    { key: "note", label: "GHI CHÚ", type: "textarea" as const },
     { key: "views", label: "SỐ LƯỢT XEM", type: "number" as const },
     { key: "interactions", label: "SỐ LƯỢT TƯƠNG TÁC", type: "number" as const },
     { key: "shares", label: "SỐ LƯỢT CHIA SẺ", type: "number" as const },
