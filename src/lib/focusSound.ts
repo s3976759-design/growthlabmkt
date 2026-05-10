@@ -9,13 +9,13 @@ export interface SoundOption {
 }
 
 export const SOUNDS: SoundOption[] = [
-  { id: "rain", label: "Mưa rơi", emoji: "🌧️" },
-  { id: "water", label: "Suối chảy", emoji: "💧" },
-  { id: "birds", label: "Chim rừng", emoji: "🐦" },
-  { id: "cafe", label: "Quán cà phê", emoji: "☕" },
-  { id: "ocean", label: "Sóng biển", emoji: "🌊" },
-  { id: "fire", label: "Lửa trại", emoji: "🔥" },
-  { id: "wind", label: "Gió nhẹ", emoji: "🍃" },
+  { id: "rain", label: "Rain", emoji: "🌧️" },
+  { id: "water", label: "Stream", emoji: "💧" },
+  { id: "birds", label: "Forest birds", emoji: "🐦" },
+  { id: "cafe", label: "Café", emoji: "☕" },
+  { id: "ocean", label: "Ocean waves", emoji: "🌊" },
+  { id: "fire", label: "Campfire", emoji: "🔥" },
+  { id: "wind", label: "Soft wind", emoji: "🍃" },
 ];
 
 type EngineState = {

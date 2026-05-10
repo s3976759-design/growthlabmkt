@@ -14,19 +14,14 @@ export function DateTimeWidget() {
     return () => clearInterval(id);
   }, []);
 
-  const locale = lang === "vi" ? "vi-VN" : lang === "zh" ? "zh-CN" : "en-US";
+  const locale = lang === "zh" ? "zh-CN" : "en-US";
   const dateStr = now.toLocaleDateString(locale, {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
-  const timeStr = now.toLocaleTimeString(locale === "vi-VN" ? "en-US" : locale, {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
+  const timeStr = now.toLocaleTimeString("en-US", {
+    hour: "numeric", minute: "2-digit", hour12: true,
   });
-  const hello = `${t("greeting.hello")}, ${account.displayName || "bạn"}`;
+  const hello = `${t("greeting.hello")}, ${account.displayName || "friend"}`;
 
   return (
     <Card className="border-border/60 bg-card/80 p-5 shadow-soft backdrop-blur-md">
