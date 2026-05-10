@@ -7,32 +7,30 @@ import { PlanTable } from "@/components/planner/PlanTable";
 import { PlanCalendar } from "@/components/planner/PlanCalendar";
 import { PlanTasks } from "@/components/planner/PlanTasks";
 import { PlanOverview } from "@/components/planner/PlanOverview";
-import { PlanSample } from "@/components/planner/PlanSample";
 import { PlanSettings } from "@/components/planner/PlanSettings";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({
     meta: [
       { title: "Content Plan — Growth Lab" },
-      { name: "description", content: "Content planner đầy đủ: kế hoạch, lịch, công việc, tổng quan, ý tưởng." },
+      { name: "description", content: "Full content planner: plan, calendar, tasks, overview." },
     ],
   }),
   component: PlanPage,
 });
 
 const TABS = [
-  { v: "ke-hoach", label: "Kế hoạch" },
-  { v: "lich", label: "Lịch" },
-  { v: "cong-viec", label: "Bảng công việc" },
-  { v: "tong-quan", label: "Tổng quan" },
-  { v: "luu-tru", label: "Lưu trữ" },
-  { v: "sample", label: "Sample" },
-  { v: "thiet-lap", label: "Thiết lập" },
+  { v: "plan", label: "Plan" },
+  { v: "calendar", label: "Calendar" },
+  { v: "tasks", label: "Tasks" },
+  { v: "overview", label: "Overview" },
+  { v: "archive", label: "Archive" },
+  { v: "settings", label: "Settings" },
 ];
 
 function PlanPage() {
   const t = useT();
-  const [tab, setTab] = useState("ke-hoach");
+  const [tab, setTab] = useState("plan");
   return (
     <div>
       <PageHeader
@@ -53,13 +51,12 @@ function PlanPage() {
               </TabsTrigger>
             ))}
           </TabsList>
-          <TabsContent value="ke-hoach"><PlanTable mode="active" /></TabsContent>
-          <TabsContent value="lich"><PlanCalendar /></TabsContent>
-          <TabsContent value="cong-viec"><PlanTasks /></TabsContent>
-          <TabsContent value="tong-quan"><PlanOverview /></TabsContent>
-          <TabsContent value="luu-tru"><PlanTable mode="archive" /></TabsContent>
-          <TabsContent value="sample"><PlanSample /></TabsContent>
-          <TabsContent value="thiet-lap"><PlanSettings /></TabsContent>
+          <TabsContent value="plan"><PlanTable mode="active" /></TabsContent>
+          <TabsContent value="calendar"><PlanCalendar /></TabsContent>
+          <TabsContent value="tasks"><PlanTasks /></TabsContent>
+          <TabsContent value="overview"><PlanOverview /></TabsContent>
+          <TabsContent value="archive"><PlanTable mode="archive" /></TabsContent>
+          <TabsContent value="settings"><PlanSettings /></TabsContent>
         </Tabs>
       </div>
     </div>

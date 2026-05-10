@@ -1,19 +1,19 @@
 import { useEffect, useState, useCallback } from "react";
 
-// ===== Default config (mirrors "Thiết lập file") =====
+// ===== Default config =====
 export const DEFAULT_CONFIG = {
   contentTypes: [
-    "Giới thiệu sản phẩm",
-    "Hướng dẫn sử dụng sản phẩm",
-    "Khuyến mãi",
-    "Video Demo",
+    "Product introduction",
+    "Product how-to",
+    "Promotion",
+    "Demo video",
     "Tips",
-    "Giáo dục/ awareness",
-    "Case lâm sàng",
-    "Tăng trust",
-    "Quy trình/ credibility",
-    "So sánh/ trust",
-    "So sánh/ Personal",
+    "Education / awareness",
+    "Clinical case",
+    "Trust building",
+    "Process / credibility",
+    "Comparison / trust",
+    "Comparison / personal",
   ],
   platforms: [
     "🟢 Facebook",
@@ -28,26 +28,24 @@ export const DEFAULT_CONFIG = {
     "🟦 Zalo",
   ],
   statuses: [
-    "💡 Lên ý tưởng",
-    "✍️ Đang soạn thảo",
-    "📝 Chờ phê duyệt",
-    "🟢 Đã phê duyệt",
-    "🛠️ Cần chỉnh sửa",
-    "🗓️ Đã lên lịch",
-    "✅ Đã đăng",
-    "❌ Huỷ bỏ",
+    "💡 Idea",
+    "✍️ Drafting",
+    "📝 Pending approval",
+    "🟢 Approved",
+    "🛠️ Needs revision",
+    "🗓️ Scheduled",
+    "✅ Posted",
+    "❌ Cancelled",
   ],
-  formats: ["Bài viết", "Video dài", "Video ngắn", "Ảnh", "Email"],
-  goals: ["Lượt xem", "Lượt yêu thích", "Lượt lưu lại", "Website visit"],
-  assignees: ["Phạm Mai Anh"],
-  weekStart: "Thứ hai",
+  formats: ["Article", "Long video", "Short video", "Image", "Email"],
+  goals: ["Views", "Likes", "Saves", "Website visit"],
+  assignees: ["Pham Mai Anh"],
+  weekStart: "Monday",
 };
 
 export type PlannerConfig = typeof DEFAULT_CONFIG;
 export type ConfigListKey = "contentTypes" | "platforms" | "statuses" | "formats" | "goals" | "assignees";
 
-// Backwards-compat: a static reference that mirrors defaults. Components should
-// prefer usePlannerConfig() so edits in Settings propagate everywhere.
 export const PLANNER_CONFIG = DEFAULT_CONFIG;
 
 // ===== Types =====
@@ -101,7 +99,7 @@ const KEYS = {
   ideas: "gl_planner_ideas",
   pillars: "gl_planner_pillars",
   sample: "gl_planner_sample",
-  config: "gl_planner_config_v1",
+  config: "gl_planner_config_v2",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -147,7 +145,6 @@ function useStored<T>(key: string, initial: T) {
 
 export const pid = () => Math.random().toString(36).slice(2, 10);
 
-/** Upsert a planner row keyed by an external id (used by Execute → Plan sync). */
 export function upsertPlannerRow(partial: Partial<PlannerRow> & { id: string }) {
   if (typeof window === "undefined") return;
   const list = read<PlannerRow[]>(KEYS.rows, []);
@@ -191,7 +188,6 @@ export function usePlannerSample() {
 
 export function usePlannerConfig() {
   const [cfg, setCfg] = useStored<PlannerConfig>(KEYS.config, DEFAULT_CONFIG);
-  // ensure all keys exist (forward-compat with future fields)
   const merged: PlannerConfig = { ...DEFAULT_CONFIG, ...cfg };
   const addOption = (k: ConfigListKey, value: string) => {
     const v = value.trim();
@@ -238,5 +234,5 @@ export function emptyRow(cfg: PlannerConfig = DEFAULT_CONFIG): PlannerRow {
 }
 
 export function isPosted(r: PlannerRow) {
-  return r.status === "✅ Đã đăng";
+  return r.status === "✅ Posted" || r.status === "✅ Đã đăng";
 }
