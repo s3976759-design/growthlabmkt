@@ -4,7 +4,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { usePlannerRows, usePlannerConfig } from "@/lib/planner";
+import { usePlannerRows, usePlannerConfig, isPosted } from "@/lib/planner";
 
 const ALL = "__all__";
 
@@ -39,53 +39,53 @@ export function PlanTasks() {
   }, [rows, from, to, postFrom, postTo, contentType, assignee, platform, status, format, goal]);
 
   const total = rows.length;
-  const posted = rows.filter((r) => r.status === "✅ Đã đăng").length;
+  const posted = rows.filter(isPosted).length;
 
   const today = new Date(); today.setHours(0,0,0,0);
   const todayKey = today.toISOString().slice(0,10);
   const tomorrowKey = new Date(today.getTime() + 86400000).toISOString().slice(0,10);
-  const overdue = rows.filter((r) => r.postDate && r.postDate < todayKey && r.status !== "✅ Đã đăng");
+  const overdue = rows.filter((r) => r.postDate && r.postDate < todayKey && !isPosted(r));
   const todays = rows.filter((r) => r.postDate === todayKey);
   const tomorrows = rows.filter((r) => r.postDate === tomorrowKey);
 
   const filterDef: { label: string; value: string; setter: (v: string) => void; options: string[] }[] = [
-    { label: "LOẠI NỘI DUNG", value: contentType, setter: setContentType, options: PLANNER_CONFIG.contentTypes as unknown as string[] },
-    { label: "NGƯỜI THỰC HIỆN", value: assignee, setter: setAssignee, options: PLANNER_CONFIG.assignees as unknown as string[] },
-    { label: "NỀN TẢNG", value: platform, setter: setPlatform, options: PLANNER_CONFIG.platforms as unknown as string[] },
-    { label: "TRẠNG THÁI", value: status, setter: setStatus, options: PLANNER_CONFIG.statuses as unknown as string[] },
-    { label: "ĐỊNH DẠNG", value: format, setter: setFormat, options: PLANNER_CONFIG.formats as unknown as string[] },
-    { label: "MỤC TIÊU", value: goal, setter: setGoal, options: PLANNER_CONFIG.goals as unknown as string[] },
+    { label: "CONTENT TYPE", value: contentType, setter: setContentType, options: PLANNER_CONFIG.contentTypes as unknown as string[] },
+    { label: "ASSIGNEE", value: assignee, setter: setAssignee, options: PLANNER_CONFIG.assignees as unknown as string[] },
+    { label: "PLATFORM", value: platform, setter: setPlatform, options: PLANNER_CONFIG.platforms as unknown as string[] },
+    { label: "STATUS", value: status, setter: setStatus, options: PLANNER_CONFIG.statuses as unknown as string[] },
+    { label: "FORMAT", value: format, setter: setFormat, options: PLANNER_CONFIG.formats as unknown as string[] },
+    { label: "GOAL", value: goal, setter: setGoal, options: PLANNER_CONFIG.goals as unknown as string[] },
   ];
 
   return (
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-3">
         <Card className="p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">🚀 Bài viết được lọc</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">🚀 Filtered posts</p>
           <p className="mt-1 font-display text-3xl font-semibold">{filtered.length}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tổng số nội dung</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Total content</p>
           <p className="mt-1 font-display text-3xl font-semibold">{total}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tổng số bài đã đăng</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Total posted</p>
           <p className="mt-1 font-display text-3xl font-semibold text-growth">{posted}</p>
         </Card>
       </div>
 
       <Card className="p-4">
-        <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Bộ lọc</p>
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Filters</p>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-          <DateRange label="Ngày có demo" from={from} to={to} setFrom={setFrom} setTo={setTo} />
-          <DateRange label="Thời gian đăng bài" from={postFrom} to={postTo} setFrom={setPostFrom} setTo={setPostTo} />
+          <DateRange label="Demo date" from={from} to={to} setFrom={setFrom} setTo={setTo} />
+          <DateRange label="Post date" from={postFrom} to={postTo} setFrom={setPostFrom} setTo={setPostTo} />
           {filterDef.map((f) => (
             <div key={f.label}>
               <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{f.label}</label>
               <Select value={f.value} onValueChange={f.setter}>
                 <SelectTrigger className="mt-1 h-9 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL} className="text-xs">— Tất cả —</SelectItem>
+                  <SelectItem value={ALL} className="text-xs">— All —</SelectItem>
                   {f.options.map((o) => <SelectItem key={o} value={o} className="text-xs">{o}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -95,22 +95,22 @@ export function PlanTasks() {
       </Card>
 
       <div className="grid gap-3 md:grid-cols-3">
-        <TaskList title="🔴 Quá hạn" items={overdue} tone="text-destructive" />
-        <TaskList title="📌 Hôm nay" items={todays} tone="text-growth" />
-        <TaskList title="📅 Ngày mai" items={tomorrows} tone="text-insight" />
+        <TaskList title="🔴 Overdue" items={overdue} tone="text-destructive" />
+        <TaskList title="📌 Today" items={todays} tone="text-growth" />
+        <TaskList title="📅 Tomorrow" items={tomorrows} tone="text-insight" />
       </div>
 
       <Card className="p-4">
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Kết quả ({filtered.length})</p>
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Results ({filtered.length})</p>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead className="text-[10px] uppercase text-muted-foreground">
               <tr>
-                <th className="px-2 py-1.5 text-left">Tiêu đề</th>
-                <th className="px-2 py-1.5 text-left">Trạng thái</th>
-                <th className="px-2 py-1.5 text-left">Nền tảng</th>
-                <th className="px-2 py-1.5 text-left">Định dạng</th>
-                <th className="px-2 py-1.5 text-left">Ngày đăng</th>
+                <th className="px-2 py-1.5 text-left">Title</th>
+                <th className="px-2 py-1.5 text-left">Status</th>
+                <th className="px-2 py-1.5 text-left">Platform</th>
+                <th className="px-2 py-1.5 text-left">Format</th>
+                <th className="px-2 py-1.5 text-left">Post date</th>
               </tr>
             </thead>
             <tbody>
@@ -124,7 +124,7 @@ export function PlanTasks() {
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={5} className="px-2 py-6 text-center text-muted-foreground">Không có kết quả.</td></tr>
+                <tr><td colSpan={5} className="px-2 py-6 text-center text-muted-foreground">No results.</td></tr>
               )}
             </tbody>
           </table>

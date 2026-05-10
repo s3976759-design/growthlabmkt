@@ -14,7 +14,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Dashboard — Growth Lab" },
-      { name: "description", content: "Tổng quan content tuần này, top bài, weekly goal." },
+      { name: "description", content: "Weekly content overview, top posts, weekly goal." },
     ],
   }),
   component: Dashboard,
@@ -99,13 +99,13 @@ function Dashboard() {
               <span className="font-display text-6xl font-semibold leading-none tracking-tight">
                 {postedThisWeek.length}
               </span>
-              <span className="pb-2 text-lg text-muted-foreground">/ {goal} bài</span>
+              <span className="pb-2 text-lg text-muted-foreground">/ {goal} posts</span>
             </div>
             <Progress value={goalPct} className="mt-5 h-2" />
             <p className="mt-3 text-sm text-muted-foreground">
               {goalPct >= 100
-                ? "🎉 Bé đã chạm goal tuần này. Giờ là lúc nhìn lại insight."
-                : `Còn ${Math.max(0, goal - postedThisWeek.length)} bài để chạm mục tiêu.`}
+                ? "🎉 You hit this week's goal. Time to review insights."
+                : `${Math.max(0, goal - postedThisWeek.length)} more posts to hit your goal.`}
             </p>
           </div>
         </Card>
@@ -118,10 +118,10 @@ function Dashboard() {
             </span>
           </div>
           <p className="mt-4 font-display text-5xl font-semibold">{ideas.length}</p>
-          <p className="mt-1 text-sm opacity-90">ý tưởng đang chờ được biến thành content</p>
+          <p className="mt-1 text-sm opacity-90">ideas waiting to become content</p>
           <Button asChild variant="secondary" size="sm" className="mt-5 gap-1.5 bg-white/15 text-insight-foreground hover:bg-white/25">
             <Link to="/brain">
-              Mở Brain <ArrowRight className="h-3.5 w-3.5" />
+              Open Brain <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </Button>
         </Card>
@@ -135,18 +135,18 @@ function Dashboard() {
               </span>
             </div>
             <Link to="/track" className="text-xs text-muted-foreground hover:text-foreground">
-              Xem tất cả →
+              View all →
             </Link>
           </div>
 
           {top.length === 0 ? (
             <div className="mt-6 rounded-lg border border-dashed border-border/80 p-10 text-center">
-              <p className="font-display text-lg">Chưa có data hiệu năng.</p>
+              <p className="font-display text-lg">No performance data yet.</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Đăng bài, nhập số liệu, lab sẽ tự highlight bài tốt nhất.
+                Post and log metrics — the lab will highlight your best.
               </p>
               <Button asChild variant="outline" size="sm" className="mt-4">
-                <Link to="/track">Vào Tracker</Link>
+                <Link to="/track">Open Tracker</Link>
               </Button>
             </div>
           ) : (

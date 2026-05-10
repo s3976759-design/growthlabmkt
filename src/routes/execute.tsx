@@ -23,25 +23,25 @@ export const Route = createFileRoute("/execute")({
   head: () => ({
     meta: [
       { title: "Execute — Growth Lab" },
-      { name: "description", content: "Viết caption, lưu version, gắn mục tiêu." },
+      { name: "description", content: "Write captions, save versions, attach goals." },
     ],
   }),
   component: ExecutePage,
 });
 
 const HOOKS = [
-  "Bạn có biết… [statistic shock]?",
-  "3 sai lầm khiến bạn… ",
-  "Tôi đã thử [X] trong 7 ngày, đây là kết quả",
-  "Đừng làm [X] nếu bạn chưa biết điều này",
-  "Bí mật mà ngành [X] không muốn bạn biết",
+  "Did you know… [statistic shock]?",
+  "3 mistakes that make you…",
+  "I tried [X] for 7 days, here are the results",
+  "Don't do [X] until you know this",
+  "The secret the [X] industry doesn't want you to know",
 ];
 const CTAS = [
-  "Lưu lại để dùng sau 👇",
-  "Bạn nghĩ sao? Comment cho mình biết nhé.",
-  "Share cho người cần đọc.",
-  "Follow để xem phần 2.",
-  "DM 'Yes' để mình gửi template.",
+  "Save this for later 👇",
+  "What do you think? Drop a comment.",
+  "Share with someone who needs this.",
+  "Follow for part 2.",
+  "DM 'Yes' to get the template.",
 ];
 
 function ExecutePage() {
@@ -62,6 +62,7 @@ function ExecutePage() {
   const [format, setFormat] = useState<string>(config.formats[0] ?? "");
   const [goal, setGoal] = useState<string>(config.goals[0] ?? "");
   const [status, setStatus] = useState<string>(config.statuses[0] ?? "");
+  const [assignee, setAssignee] = useState<string>(config.assignees[0] ?? "");
   const [contentType, setContentType] = useState<string>(config.contentTypes[0] ?? "");
   const [demoDate, setDemoDate] = useState<string>("");
   const [demoTime, setDemoTime] = useState<string>("");
@@ -78,6 +79,7 @@ function ExecutePage() {
       setFormat(editing.format);
       setGoal(editing.goal);
       setStatus(editing.status);
+      setAssignee(editing.assignee ?? config.assignees[0] ?? "");
       setContentType(editing.contentType ?? config.contentTypes[0] ?? "");
       setDemoDate(editing.demoDate ?? "");
       setDemoTime(editing.demoTime ?? "");
@@ -90,6 +92,7 @@ function ExecutePage() {
       setFormat(config.formats[0] ?? "");
       setGoal(config.goals[0] ?? "");
       setStatus(config.statuses[0] ?? "");
+      setAssignee(config.assignees[0] ?? "");
       setContentType(config.contentTypes[0] ?? "");
       setDemoDate(""); setDemoTime(""); setPostDate(""); setPostTime("");
     }
@@ -101,6 +104,7 @@ function ExecutePage() {
       id: item.id,
       title: item.title,
       status: item.status,
+      assignee: item.assignee ?? "",
       contentType: item.contentType ?? "",
       platform: item.platform,
       format: item.format,
@@ -116,11 +120,11 @@ function ExecutePage() {
 
   const save = () => {
     if (!title.trim()) {
-      toast.error("Cần một tiêu đề");
+      toast.error("A title is required");
       return;
     }
     const common = {
-      title, caption, hashtags, platform, format, goal, status,
+      title, caption, hashtags, platform, format, goal, status, assignee,
       contentType, demoDate, demoTime, postDate, postTime,
       ideaId: ideaId === "none" ? undefined : ideaId,
     };
@@ -143,7 +147,7 @@ function ExecutePage() {
         })
       );
       if (updated) syncToPlan(updated);
-      toast.success("Đã cập nhật & đồng bộ Plan", {
+      toast.success("Updated & synced to Plan", {
         action: { label: "Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
       });
     } else {
@@ -156,8 +160,8 @@ function ExecutePage() {
       };
       setContents((prev) => [item, ...prev]);
       syncToPlan(item);
-      toast.success("Đã lưu vào Pipeline & Plan", {
-        action: { label: "Mở Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
+      toast.success("Saved to Pipeline & Plan", {
+        action: { label: "Open Pipeline", onClick: () => navigate({ to: "/pipeline" }) },
       });
       navigate({ to: "/execute", search: { id: item.id } });
     }
@@ -167,7 +171,7 @@ function ExecutePage() {
     if (!editing) return;
     setContents((prev) => prev.filter((c) => c.id !== editing.id));
     deletePlannerRow(editing.id);
-    toast.success("Đã xoá");
+    toast.success("Deleted");
     navigate({ to: "/execute", search: {} });
   };
 
@@ -192,59 +196,59 @@ function ExecutePage() {
         </Button>
         {editing && (
           <Button variant="ghost" size="sm" onClick={remove} className="gap-2 text-destructive">
-            <Trash2 className="h-4 w-4" /> Xoá
+            <Trash2 className="h-4 w-4" /> Delete
           </Button>
         )}
-        <Button onClick={save} className="gap-2"><Save className="h-4 w-4" /> Lưu</Button>
+        <Button onClick={save} className="gap-2"><Save className="h-4 w-4" /> Save</Button>
       </PageHeader>
 
       <div className="grid gap-6 px-6 py-8 md:px-10 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
         <Card className="border-border/60 bg-card p-4 shadow-soft">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Lịch & Phân loại (đồng bộ Plan)
+            Schedule & Classification (synced with Plan)
           </p>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5">
-            <MiniField label="TRẠNG THÁI">
+            <MiniField label="STATUS">
               <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>{config.statuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </MiniField>
-            <MiniField label="LOẠI NỘI DUNG">
+            <MiniField label="CONTENT TYPE">
               <Select value={contentType} onValueChange={setContentType}>
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>{config.contentTypes.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </MiniField>
-            <MiniField label="NỀN TẢNG">
+            <MiniField label="PLATFORM">
               <Select value={platform} onValueChange={setPlatform}>
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>{config.platforms.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </MiniField>
-            <MiniField label="ĐỊNH DẠNG">
+            <MiniField label="FORMAT">
               <Select value={format} onValueChange={setFormat}>
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>{config.formats.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </MiniField>
-            <MiniField label="MỤC TIÊU">
+            <MiniField label="GOAL">
               <Select value={goal} onValueChange={setGoal}>
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>{config.goals.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </MiniField>
-            <MiniField label="NGÀY CÓ DEMO">
+            <MiniField label="DEMO DATE">
               <Input type="date" value={demoDate} onChange={(e) => setDemoDate(e.target.value)} className="h-8 text-xs" />
             </MiniField>
-            <MiniField label="GIỜ CÓ DEMO">
+            <MiniField label="DEMO TIME">
               <Input type="time" value={demoTime} onChange={(e) => setDemoTime(e.target.value)} className="h-8 text-xs" />
             </MiniField>
-            <MiniField label="NGÀY ĐĂNG">
+            <MiniField label="POST DATE">
               <Input type="date" value={postDate} onChange={(e) => setPostDate(e.target.value)} className="h-8 text-xs" />
             </MiniField>
-            <MiniField label="GIỜ ĐĂNG">
+            <MiniField label="POST TIME">
               <Input type="time" value={postTime} onChange={(e) => setPostTime(e.target.value)} className="h-8 text-xs" />
             </MiniField>
           </div>
@@ -254,28 +258,28 @@ function ExecutePage() {
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Tiêu đề bài (chỉ bạn thấy)…"
+            placeholder="Post title (private)…"
             className="border-0 bg-transparent px-0 font-display text-2xl font-medium shadow-none focus-visible:ring-0 md:text-3xl"
           />
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" className="gap-1.5" onClick={insertHook}>
-              <Sparkles className="h-3.5 w-3.5 text-insight" /> Hook gợi ý
+              <Sparkles className="h-3.5 w-3.5 text-insight" /> Hook suggestion
             </Button>
             <Button size="sm" variant="outline" className="gap-1.5" onClick={insertCta}>
-              <Sparkles className="h-3.5 w-3.5 text-growth" /> CTA gợi ý
+              <Sparkles className="h-3.5 w-3.5 text-growth" /> CTA suggestion
             </Button>
-            <span className="ml-auto text-xs text-muted-foreground">{caption.length} ký tự</span>
+            <span className="ml-auto text-xs text-muted-foreground">{caption.length} chars</span>
           </div>
           <Textarea
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            placeholder="Viết caption ở đây…"
+            placeholder="Write the caption here…"
             rows={16}
             className="mt-3 resize-none border-border/60 bg-surface font-sans text-base leading-relaxed"
           />
 
           <label className="mt-4 block">
-            <span className="mb-1 block text-xs font-medium text-muted-foreground">Hashtag</span>
+            <span className="mb-1 block text-xs font-medium text-muted-foreground">Hashtags</span>
             <Input
               value={hashtags}
               onChange={(e) => setHashtags(e.target.value)}
@@ -288,18 +292,18 @@ function ExecutePage() {
             <div className="mt-6 border-t border-border/60 pt-5">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <History className="h-4 w-4" />
-                <span className="font-medium">Phiên bản trước ({editing.versions.length})</span>
+                <span className="font-medium">Previous versions ({editing.versions.length})</span>
               </div>
               <div className="mt-3 space-y-2">
                 {editing.versions.slice(0, 3).map((v) => (
                   <div key={v.id} className="rounded-md border border-border/60 bg-surface/60 p-3">
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                      <span>{new Date(v.createdAt).toLocaleString("vi-VN")}</span>
+                      <span>{new Date(v.createdAt).toLocaleString("en-US")}</span>
                       <button
                         className="hover:text-foreground"
                         onClick={() => setCaption(v.caption)}
                       >
-                        Khôi phục
+                        Restore
                       </button>
                     </div>
                     <p className="mt-1 line-clamp-3 text-xs leading-relaxed">{v.caption}</p>
@@ -315,18 +319,34 @@ function ExecutePage() {
           <Card className="border-border/60 bg-card p-5 shadow-soft">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Liên kết
+                Links
               </p>
               <Link to="/plan" className="text-[10px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
-                Sửa danh sách trong Plan → Thiết lập
+                Edit lists in Plan → Settings
               </Link>
             </div>
             <div className="mt-4 space-y-3">
-              <Field label="Từ ý tưởng (Brain)">
-                <Select value={ideaId} onValueChange={setIdeaId}>
-                  <SelectTrigger><SelectValue placeholder="Không gắn" /></SelectTrigger>
+              <Field label="Status">
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">— Không gắn —</SelectItem>
+                    {config.statuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Assignee">
+                <Select value={assignee} onValueChange={setAssignee}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {config.assignees.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="From idea (Brain)">
+                <Select value={ideaId} onValueChange={setIdeaId}>
+                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">— None —</SelectItem>
                     {ideas.map((i) => <SelectItem key={i.id} value={i.id}>{i.title}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -337,11 +357,11 @@ function ExecutePage() {
           {!isNew && (
             <Card className="border-border/60 bg-surface/60 p-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Thuộc tính
+                Properties
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 <Badge variant="outline" className="gap-1"><FileText className="h-3 w-3" /> {editing!.versions.length} versions</Badge>
-                <Badge variant="outline">Tạo {new Date(editing!.createdAt).toLocaleDateString("vi-VN")}</Badge>
+                <Badge variant="outline">Created {new Date(editing!.createdAt).toLocaleDateString("en-US")}</Badge>
               </div>
             </Card>
           )}

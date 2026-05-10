@@ -24,27 +24,27 @@ import {
 import { toast } from "sonner";
 
 interface Props {
-  /** "active" = chưa đăng, "archive" = đã đăng */
+  /** "active" = not posted, "archive" = posted */
   mode: "active" | "archive";
 }
 
 function buildCols(cfg: PlannerConfig) {
   return [
-    { key: "title", label: "TIÊU ĐỀ / NỘI DUNG CHÍNH", type: "title" as const },
-    { key: "assignee", label: "NGƯỜI THỰC HIỆN", type: "select" as const, options: cfg.assignees },
-    { key: "status", label: "TRẠNG THÁI", type: "select" as const, options: cfg.statuses },
-    { key: "contentType", label: "LOẠI NỘI DUNG", type: "select" as const, options: cfg.contentTypes },
-    { key: "platform", label: "NỀN TẢNG", type: "select" as const, options: cfg.platforms },
-    { key: "format", label: "ĐỊNH DẠNG", type: "select" as const, options: cfg.formats },
-    { key: "goal", label: "MỤC TIÊU", type: "select" as const, options: cfg.goals },
-    { key: "demoDate", label: "NGÀY CÓ DEMO", type: "date" as const },
-    { key: "demoTime", label: "GIỜ CÓ DEMO", type: "time" as const },
-    { key: "postDate", label: "NGÀY ĐĂNG", type: "date" as const },
-    { key: "postTime", label: "GIỜ ĐĂNG", type: "time" as const },
-    { key: "views", label: "SỐ LƯỢT XEM", type: "number" as const },
-    { key: "interactions", label: "SỐ LƯỢT TƯƠNG TÁC", type: "number" as const },
-    { key: "shares", label: "SỐ LƯỢT CHIA SẺ", type: "number" as const },
-    { key: "saves", label: "SỐ LƯỢT LƯU LẠI", type: "number" as const },
+    { key: "title", label: "TITLE / MAIN CONTENT", type: "title" as const },
+    { key: "assignee", label: "ASSIGNEE", type: "select" as const, options: cfg.assignees },
+    { key: "status", label: "STATUS", type: "select" as const, options: cfg.statuses },
+    { key: "contentType", label: "CONTENT TYPE", type: "select" as const, options: cfg.contentTypes },
+    { key: "platform", label: "PLATFORM", type: "select" as const, options: cfg.platforms },
+    { key: "format", label: "FORMAT", type: "select" as const, options: cfg.formats },
+    { key: "goal", label: "GOAL", type: "select" as const, options: cfg.goals },
+    { key: "demoDate", label: "DEMO DATE", type: "date" as const },
+    { key: "demoTime", label: "DEMO TIME", type: "time" as const },
+    { key: "postDate", label: "POST DATE", type: "date" as const },
+    { key: "postTime", label: "POST TIME", type: "time" as const },
+    { key: "views", label: "VIEWS", type: "number" as const },
+    { key: "interactions", label: "INTERACTIONS", type: "number" as const },
+    { key: "shares", label: "SHARES", type: "number" as const },
+    { key: "saves", label: "SAVES", type: "number" as const },
   ] satisfies { key: keyof PlannerRow; label: string; type: "select" | "date" | "time" | "number" | "text" | "textarea" | "title"; options?: string[] }[];
 }
 
@@ -78,7 +78,7 @@ export function PlanTable({ mode }: Props) {
   };
   const remove = (id: string) => {
     setRows((prev) => prev.filter((r) => r.id !== id));
-    toast.success("Đã xoá dòng");
+    toast.success("Row deleted");
   };
   const add = () => {
     setRows((prev) => [emptyRow(config), ...prev]);
@@ -88,17 +88,17 @@ export function PlanTable({ mode }: Props) {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Input
-          placeholder="Tìm theo tiêu đề..."
+          placeholder="Search by title..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm"
         />
         <div className="ml-auto text-xs text-muted-foreground">
-          ✍️ Tổng: <b className="text-foreground">{filtered.length}</b>
+          ✍️ Total: <b className="text-foreground">{filtered.length}</b>
         </div>
         {mode === "active" && (
           <Button size="sm" onClick={add} className="gap-1">
-            <Plus className="h-3.5 w-3.5" /> Thêm dòng
+            <Plus className="h-3.5 w-3.5" /> Add row
           </Button>
         )}
       </div>
@@ -112,7 +112,7 @@ export function PlanTable({ mode }: Props) {
                   {c.label}
                 </th>
               ))}
-              <th className="px-2 py-2 text-left font-semibold">CÒN LẠI</th>
+              <th className="px-2 py-2 text-left font-semibold">DAYS LEFT</th>
               <th className="px-2 py-2"></th>
             </tr>
           </thead>
@@ -128,9 +128,9 @@ export function PlanTable({ mode }: Props) {
                           type="button"
                           onClick={() => setOpenId(row.id)}
                           className="block min-w-48 max-w-xs truncate rounded border border-transparent bg-transparent px-2 py-1 text-left text-xs font-medium hover:border-border hover:bg-accent/50"
-                          title="Bấm để mở nội dung"
+                          title="Click to open content"
                         >
-                          {(v as string) || <span className="text-muted-foreground">(bấm để mở)</span>}
+                          {(v as string) || <span className="text-muted-foreground">(click to open)</span>}
                         </button>
                       ) : c.type === "select" ? (
                         <Select
@@ -176,7 +176,7 @@ export function PlanTable({ mode }: Props) {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={COLS.length + 2} className="px-4 py-8 text-center text-xs text-muted-foreground">
-                  {mode === "archive" ? "Chưa có bài nào đã đăng." : "Chưa có dòng. Bấm + Thêm dòng."}
+                  {mode === "archive" ? "No posted content yet." : "No rows. Click + Add row."}
                 </td>
               </tr>
             )}
@@ -185,32 +185,89 @@ export function PlanTable({ mode }: Props) {
       </div>
 
       <Dialog open={!!openRow} onOpenChange={(o) => !o && setOpenId(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               <Input
                 value={openRow?.title ?? ""}
                 onChange={(e) => openRow && update(openRow.id, "title", e.target.value)}
-                placeholder="Tiêu đề"
-                className="border-0 px-0 text-lg font-semibold shadow-none focus-visible:ring-0"
+                placeholder="Title"
+                className="border-0 px-0 font-display text-2xl font-semibold shadow-none focus-visible:ring-0"
               />
             </DialogTitle>
           </DialogHeader>
 
           {openRow && (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {/* Calendar & classification — same look as Execute */}
+              <div className="rounded-lg border border-border/60 bg-surface/40 p-3">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Schedule & Classification
+                </p>
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+                  <Mini label="STATUS">
+                    <Select value={openRow.status || ""} onValueChange={(v) => update(openRow.id, "status", v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{config.statuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Mini>
+                  <Mini label="ASSIGNEE">
+                    <Select value={openRow.assignee || ""} onValueChange={(v) => update(openRow.id, "assignee", v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{config.assignees.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Mini>
+                  <Mini label="CONTENT TYPE">
+                    <Select value={openRow.contentType || ""} onValueChange={(v) => update(openRow.id, "contentType", v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{config.contentTypes.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Mini>
+                  <Mini label="PLATFORM">
+                    <Select value={openRow.platform || ""} onValueChange={(v) => update(openRow.id, "platform", v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{config.platforms.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Mini>
+                  <Mini label="FORMAT">
+                    <Select value={openRow.format || ""} onValueChange={(v) => update(openRow.id, "format", v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{config.formats.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Mini>
+                  <Mini label="GOAL">
+                    <Select value={openRow.goal || ""} onValueChange={(v) => update(openRow.id, "goal", v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{config.goals.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Mini>
+                  <Mini label="DEMO DATE">
+                    <Input type="date" value={openRow.demoDate ?? ""} onChange={(e) => update(openRow.id, "demoDate", e.target.value)} className="h-8 text-xs" />
+                  </Mini>
+                  <Mini label="DEMO TIME">
+                    <Input type="time" value={openRow.demoTime ?? ""} onChange={(e) => update(openRow.id, "demoTime", e.target.value)} className="h-8 text-xs" />
+                  </Mini>
+                  <Mini label="POST DATE">
+                    <Input type="date" value={openRow.postDate ?? ""} onChange={(e) => update(openRow.id, "postDate", e.target.value)} className="h-8 text-xs" />
+                  </Mini>
+                  <Mini label="POST TIME">
+                    <Input type="time" value={openRow.postTime ?? ""} onChange={(e) => update(openRow.id, "postTime", e.target.value)} className="h-8 text-xs" />
+                  </Mini>
+                </div>
+              </div>
+
               <div>
-                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Nội dung</p>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Caption / Body</p>
                 <Textarea
                   value={openRow.body ?? ""}
                   onChange={(e) => update(openRow.id, "body", e.target.value)}
-                  rows={10}
-                  className="resize-y text-sm"
-                  placeholder="Viết nội dung chính ở đây…"
+                  rows={14}
+                  className="resize-y font-sans text-sm leading-relaxed"
+                  placeholder="Write the main content here…"
                 />
               </div>
               <div>
-                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Hashtag</p>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Hashtags</p>
                 <Input
                   value={openRow.hashtag ?? ""}
                   onChange={(e) => update(openRow.id, "hashtag", e.target.value)}
@@ -219,7 +276,7 @@ export function PlanTable({ mode }: Props) {
                 />
               </div>
               <div>
-                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ghi chú</p>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Notes</p>
                 <Textarea
                   value={openRow.note ?? ""}
                   onChange={(e) => update(openRow.id, "note", e.target.value)}
@@ -231,10 +288,19 @@ export function PlanTable({ mode }: Props) {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenId(null)}>Đóng</Button>
+            <Button variant="outline" onClick={() => setOpenId(null)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function Mini({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+      {children}
+    </label>
   );
 }

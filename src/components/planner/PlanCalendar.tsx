@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePlannerRows } from "@/lib/planner";
 
-const VI_DAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function PlanCalendar() {
   const [rows] = usePlannerRows();
@@ -15,11 +15,11 @@ export function PlanCalendar() {
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
-  const monthName = cursor.toLocaleDateString("vi-VN", { month: "long", year: "numeric" });
+  const monthName = cursor.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
   const cells = useMemo(() => {
     const first = new Date(year, month, 1);
-    const startOffset = (first.getDay() + 6) % 7; // Mon-start
+    const startOffset = (first.getDay() + 6) % 7;
     const lastDay = new Date(year, month + 1, 0).getDate();
     const arr: { date: Date | null }[] = [];
     for (let i = 0; i < startOffset; i++) arr.push({ date: null });
@@ -45,7 +45,7 @@ export function PlanCalendar() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">🗓️ Lịch đăng bài</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">🗓️ Posting calendar</p>
           <h2 className="font-display text-2xl capitalize">{monthName}</h2>
         </div>
         <div className="flex gap-1">
@@ -53,7 +53,7 @@ export function PlanCalendar() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button size="sm" variant="outline" onClick={() => { const d = new Date(); d.setDate(1); setCursor(d); }}>
-            Hôm nay
+            Today
           </Button>
           <Button size="icon" variant="outline" onClick={() => setCursor(new Date(year, month + 1, 1))}>
             <ChevronRight className="h-4 w-4" />
@@ -62,7 +62,7 @@ export function PlanCalendar() {
       </div>
 
       <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border/60 bg-border/60 text-xs">
-        {VI_DAYS.map((d) => (
+        {DAYS.map((d) => (
           <div key={d} className="bg-surface px-2 py-1.5 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             {d}
           </div>
@@ -96,9 +96,9 @@ export function PlanCalendar() {
       </div>
 
       <div className="rounded-lg border border-border/60 bg-card p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">✍️ Bài đăng hôm nay</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">✍️ Today's posts</p>
         {todayItems.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">Không có bài đăng nào hôm nay.</p>
+          <p className="mt-2 text-sm text-muted-foreground">No posts today.</p>
         ) : (
           <ul className="mt-2 space-y-1.5">
             {todayItems.map((r) => (

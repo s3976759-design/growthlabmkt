@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const FLAGS: Record<Lang, { flag: string; label: string }> = {
-  vi: { flag: "🇻🇳", label: "Tiếng Việt" },
+  vi: { flag: "🇬🇧", label: "English" },
   en: { flag: "🇬🇧", label: "English" },
   zh: { flag: "🇨🇳", label: "中文" },
 };
