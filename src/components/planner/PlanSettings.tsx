@@ -7,12 +7,12 @@ import { usePlannerConfig, type ConfigListKey } from "@/lib/planner";
 import { toast } from "sonner";
 
 const SECTIONS: { key: ConfigListKey; title: string }[] = [
-  { key: "contentTypes", title: "LOẠI NỘI DUNG" },
-  { key: "platforms", title: "NỀN TẢNG" },
-  { key: "statuses", title: "TRẠNG THÁI" },
-  { key: "formats", title: "ĐỊNH DẠNG" },
-  { key: "goals", title: "MỤC TIÊU" },
-  { key: "assignees", title: "NGƯỜI THỰC HIỆN" },
+  { key: "contentTypes", title: "CONTENT TYPE" },
+  { key: "platforms", title: "PLATFORM" },
+  { key: "statuses", title: "STATUS" },
+  { key: "formats", title: "FORMAT" },
+  { key: "goals", title: "GOAL" },
+  { key: "assignees", title: "ASSIGNEE" },
 ];
 
 export function PlanSettings() {
@@ -22,7 +22,7 @@ export function PlanSettings() {
     <div className="space-y-4">
       <Card className="flex items-center gap-3 p-4">
         <div className="flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tuần bắt đầu</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Week starts on</p>
           <Input
             value={config.weekStart}
             onChange={(e) => setWeekStart(e.target.value)}
@@ -34,9 +34,9 @@ export function PlanSettings() {
           size="sm"
           className="gap-1"
           onClick={() => {
-            if (confirm("Khôi phục về thiết lập mặc định? Mọi tuỳ chỉnh sẽ mất.")) {
+            if (confirm("Restore default settings? All customizations will be lost.")) {
               reset();
-              toast.success("Đã reset thiết lập");
+              toast.success("Settings reset");
             }
           }}
         >
@@ -57,7 +57,7 @@ export function PlanSettings() {
         ))}
       </div>
       <p className="text-xs text-muted-foreground">
-        Các tuỳ chọn này được dùng làm dropdown trong mọi bảng. Mọi thay đổi áp dụng ngay lập tức.
+        These options power dropdowns across every table. Changes apply instantly.
       </p>
     </div>
   );
@@ -131,14 +131,14 @@ function ListEditor({
             )}
           </li>
         ))}
-        {items.length === 0 && <li className="px-2 py-1 text-xs text-muted-foreground">Chưa có mục nào.</li>}
+        {items.length === 0 && <li className="px-2 py-1 text-xs text-muted-foreground">No items yet.</li>}
       </ul>
       <div className="mt-2 flex gap-1">
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder="Thêm mới..."
+          placeholder="Add new..."
           className="h-8 flex-1 text-xs"
         />
         <Button size="icon" className="h-8 w-8" onClick={submit}>

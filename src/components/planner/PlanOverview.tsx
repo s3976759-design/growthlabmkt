@@ -37,14 +37,14 @@ export function PlanOverview() {
   return (
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-4">
-        <Stat label="Tổng lượt xem" value={totals.views} />
-        <Stat label="Tương tác" value={totals.inter} />
-        <Stat label="Chia sẻ" value={totals.shares} />
-        <Stat label="Lưu lại" value={totals.saves} />
+        <Stat label="Total views" value={totals.views} />
+        <Stat label="Interactions" value={totals.inter} />
+        <Stat label="Shares" value={totals.shares} />
+        <Stat label="Saves" value={totals.saves} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ChartCard title="Số lượng content theo nền tảng">
+        <ChartCard title="Content count by platform">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={byPlatform}>
               <XAxis dataKey="name" tick={{ fontSize: 10 }} />
@@ -55,7 +55,7 @@ export function PlanOverview() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Phân bổ theo người thực hiện">
+        <ChartCard title="Distribution by assignee">
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={byAssignee} dataKey="value" nameKey="name" outerRadius={80} label>
@@ -66,7 +66,7 @@ export function PlanOverview() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Trạng thái">
+        <ChartCard title="Status">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={byStatus} layout="vertical">
               <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
@@ -77,7 +77,7 @@ export function PlanOverview() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Định dạng & mục tiêu">
+        <ChartCard title="Format & goal">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={[...byFormat, ...byGoal.map((g) => ({ name: `🎯 ${g.name}`, value: g.value }))]}>
               <XAxis dataKey="name" tick={{ fontSize: 9 }} />

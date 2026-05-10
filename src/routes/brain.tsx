@@ -8,19 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Plus, Lightbulb, TrendingUp, Search, Trash2, Sparkles, Pencil } from "lucide-react";
 import { useIdeas, uid, type Idea, type Industry, type Format } from "@/lib/storage";
@@ -30,7 +21,7 @@ export const Route = createFileRoute("/brain")({
   head: () => ({
     meta: [
       { title: "Brain — Growth Lab" },
-      { name: "description", content: "Idea database. Lưu insight khách hàng, ý tưởng, trend." },
+      { name: "description", content: "Idea database. Capture customer insights, ideas, trends." },
     ],
   }),
   component: BrainPage,
@@ -58,7 +49,7 @@ function BrainPage() {
 
   const remove = (id: string) => {
     setIdeas((prev) => prev.filter((i) => i.id !== id));
-    toast.success("Đã xoá ý tưởng");
+    toast.success("Idea deleted");
   };
   const upsert = (idea: Idea) => {
     setIdeas((prev) => {
@@ -75,8 +66,8 @@ function BrainPage() {
         description={t("brain.desc")}
       >
         <IdeaDialog
-          trigger={<Button className="gap-2"><Plus className="h-4 w-4" /> Ý tưởng mới</Button>}
-          onSave={(i) => { upsert(i); toast.success("Đã thêm vào Brain"); }}
+          trigger={<Button className="gap-2"><Plus className="h-4 w-4" /> New idea</Button>}
+          onSave={(i) => { upsert(i); toast.success("Added to Brain"); }}
         />
       </PageHeader>
 
@@ -87,7 +78,7 @@ function BrainPage() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tìm ý tưởng, insight…"
+              placeholder="Search ideas, insights…"
               className="pl-9"
             />
           </div>
@@ -96,8 +87,8 @@ function BrainPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tất cả</SelectItem>
-              <SelectItem value="idea">💡 Ý tưởng</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="idea">💡 Idea</SelectItem>
               <SelectItem value="insight">🔍 Insight</SelectItem>
               <SelectItem value="trend">🔥 Trend</SelectItem>
             </SelectContent>
@@ -107,9 +98,9 @@ function BrainPage() {
         {filtered.length === 0 ? (
           <Card className="mt-8 border-dashed bg-surface/50 p-12 text-center">
             <Sparkles className="mx-auto h-8 w-8 text-muted-foreground/60" />
-            <p className="mt-4 font-display text-xl">Brain còn trống.</p>
+            <p className="mt-4 font-display text-xl">Brain is empty.</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Một ý tưởng dở vẫn hơn một trí nhớ tốt. Lưu ngay đi.
+              A bad idea still beats a good memory. Save it now.
             </p>
           </Card>
         ) : (
@@ -131,7 +122,7 @@ function BrainPage() {
           initial={editing}
           open
           onOpenChange={(o) => !o && setEditing(null)}
-          onSave={(i) => { upsert(i); setEditing(null); toast.success("Đã cập nhật"); }}
+          onSave={(i) => { upsert(i); setEditing(null); toast.success("Updated"); }}
         />
       )}
     </div>
@@ -140,7 +131,7 @@ function BrainPage() {
 
 function IdeaCard({ idea, onDelete, onEdit }: { idea: Idea; onDelete: () => void; onEdit: () => void }) {
   const typeMeta = {
-    idea: { icon: Lightbulb, label: "Ý tưởng", color: "bg-growth/15 text-foreground" },
+    idea: { icon: Lightbulb, label: "Idea", color: "bg-growth/15 text-foreground" },
     insight: { icon: Search, label: "Insight", color: "bg-insight/15 text-insight" },
     trend: { icon: TrendingUp, label: "Trend", color: "bg-accent text-accent-foreground" },
   }[idea.type];
@@ -220,14 +211,14 @@ function IdeaDialog({ trigger, initial, open, onOpenChange, onSave }: DialogProp
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">
-            {initial ? "Chỉnh sửa ý tưởng" : "Thêm vào Brain"}
+            {initial ? "Edit idea" : "Add to Brain"}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <Input placeholder="Tiêu đề / câu hook…" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input placeholder="Title / hook…" value={title} onChange={(e) => setTitle(e.target.value)} />
           <Textarea
             rows={4}
-            placeholder="Insight, ngữ cảnh, nguồn cảm hứng…"
+            placeholder="Insight, context, inspiration…"
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
@@ -235,7 +226,7 @@ function IdeaDialog({ trigger, initial, open, onOpenChange, onSave }: DialogProp
             <Select value={type} onValueChange={(v) => setType(v as Idea["type"])}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="idea">💡 Ý tưởng</SelectItem>
+                <SelectItem value="idea">💡 Idea</SelectItem>
                 <SelectItem value="insight">🔍 Insight</SelectItem>
                 <SelectItem value="trend">🔥 Trend</SelectItem>
               </SelectContent>
@@ -255,8 +246,8 @@ function IdeaDialog({ trigger, initial, open, onOpenChange, onSave }: DialogProp
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => setOpen(false)}>Huỷ</Button>
-          <Button onClick={submit}>Lưu</Button>
+          <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={submit}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
